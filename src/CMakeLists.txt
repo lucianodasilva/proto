@@ -11,18 +11,8 @@ if (NOT ${CMAKE_CXX_COMPILER_ID} EQUAL "MSVC")
 	endif ()
 endif ()
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/../../build/")
-
-set(SOURCE_FILES
-    CMakeLists.txt
-    imp_reference.h
-    imp_datadriven.h
-    harness.h
-    harness_timer.h
-    main.cpp
-    test_math.h
-    math.matrixes.h
-    math.vectors.h
+file ( GLOB SOURCE_FILES
+    ${CMAKE_CURRENT_LIST_DIR}/*.*
 )
 
 include_directories(.)
