@@ -88,6 +88,7 @@ namespace proto {
 		struct entity_manager;
 
 		struct isystem {
+			virtual uint32_t add_element(abstract::component_desc & desc) = 0;
 			virtual void initialize(entity_manager & manager) = 0;
 			virtual void update(const id_t & event_id) = 0;
 		};
@@ -126,6 +127,27 @@ namespace proto {
 
 			std::vector < transformer_properties > properties;
 
+			template < class _t >
+			inline static void set_field(_t & v, id_t id, abstract::component_desc & cdesc) {
+				for (auto & p : cdesc.arguments) {
+					if (p.id == id) {
+						auto pv = dynamic_cast <abstract::details::value_desc::value < _t > * > (p.value.data);
+						v = pv->data;
+						return;
+					}
+				}
+			}
+
+			inline virtual uint32_t add_element(abstract::component_desc & desc) {
+				uint32_t index = properties.size();
+				properties.resize(index + 1);
+				auto & e = properties.back();
+
+				set_field(e.position, id::properties::position, desc);
+				set_field(e.scale, id::properties::scale, desc);
+
+				return index;
+			}
 
 			inline virtual void initialize(entity_manager & manager) {}
 
@@ -164,6 +186,30 @@ namespace proto {
 
 			inline void reg(const visual_bucket & bucket) {
 				render_items.push_back(bucket);
+			}
+
+			template < class _t >
+			inline static void set_field(_t & v, id_t id, abstract::component_desc & cdesc) {
+				for (auto & p : cdesc.arguments) {
+					if (p.id == id) {
+						auto pv = dynamic_cast <abstract::details::value_desc::value < _t > * > (p.value.data);
+						v = pv->data;
+						return;
+					}
+				}
+			}
+
+			inline virtual uint32_t add_element(abstract::component_desc & desc) {
+				uint32_t index = properties.size();
+				properties.resize(index + 1);
+				auto & e = properties.back();
+
+				set_field(e.material_id, id::properties::material_id, desc);
+				set_field(e.mesh_id, id::properties::mesh_id, desc);
+
+				e.transform_index = 0;
+
+				return index;
 			}
 
 			inline virtual void initialize(entity_manager & manager) {
@@ -209,50 +255,27 @@ namespace proto {
 
 			inline static void create_entity(entity_manager & manager, abstract::entity_desc & desc) {
 				
-				uint32_t ent_type = std::rand() % 4;
-
 				entity new_entity;
 
 				transformer_system * ts = (transformer_system*)manager.systems[0];
 				visual_system * vs = (visual_system*)manager.systems[1];
 
-				switch (ent_type) {
-				case (1) : {
-					new_entity.components = component_id::transformer;
-					new_entity.handles.add(handles::position_handle, ts->properties.size());
-					ts->properties.push_back(transformer_system::transformer_properties());
-					break;
-				}
-				case (2) : {
-					new_entity.components = component_id::visual;
+				for (auto & cdesc : desc.components) {
 
-					new_entity.handles.add(handles::visual_handle, vs->properties.size());
-					vs->properties.push_back(visual_system::visual_properties{
-						text_to_id("some id"),
-						text_to_id("some other id"),
-						0
-					});
-					break;
-				}
-				case (3) : {
-					new_entity.components = component_id::visual | component_id::transformer;
+					isystem * system_inst = nullptr;
 
-					uint32_t transf_i = ts->properties.size();
-					new_entity.handles.add(handles::position_handle, transf_i);
-					new_entity.handles.add(handles::visual_handle, vs->properties.size());
+					if (cdesc.type == id::components::transformer)
+						system_inst = ts;
+					if (cdesc.type == id::components::visual)
+						system_inst = vs;
 
-					ts->properties.push_back(transformer_system::transformer_properties());
-					vs->properties.push_back(visual_system::visual_properties{
-						text_to_id("some id"),
-						text_to_id("some other id"),
-						transf_i
-					});
+					if (system_inst) {
+						new_entity.handles.add(
+							cdesc.type,
+							system_inst->add_element (cdesc)
+						);
+					}
 
-					break;
-				}
-				default: {
-					// do nothing
-				}
 				}
 
 				manager.entities.push_back(new_entity);

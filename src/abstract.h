@@ -2,9 +2,9 @@
 #ifndef _abstract_h_
 #define _abstract_h_
 
+#include <functional>
 #include <vector>
 #include <string>
-#include <xhash>
 #include <cinttypes>
 
 namespace proto {

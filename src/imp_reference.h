@@ -2,6 +2,7 @@
 #ifndef _imp_reference_h_
 #define _imp_reference_h_
 
+#include <algorithm>
 #include <map>
 #include <vector>
 #include <random>
@@ -15,6 +16,7 @@ namespace proto {
 
 		struct iproperty {
 			virtual iproperty * clone() const = 0;
+			virtual void set(abstract::details::value_desc & value) = 0;
 		};
 
 		//	PROPERTY LOGIC
@@ -27,11 +29,17 @@ namespace proto {
 			inline property(const _t & v) : data(v) {}
 			virtual ~property() {}
 
-			inline void operator = (const _t & v) { data = v; }
-			inline operator _t () { return data; }
+			inline operator _t & () { return data; }
 
-			virtual iproperty * clone() const {
+			inline virtual iproperty * clone() const {
 				return new property < _t >(data);
+			}
+
+			inline virtual void set(abstract::details::value_desc & value) {
+				auto v = dynamic_cast <abstract::details::value_desc::value < _t > * > (value.data);
+
+				if (v) 
+					data = v->data;
 			}
 
 		};
@@ -62,6 +70,11 @@ namespace proto {
 						property < _t > * p = static_cast <iproperty *> (_instance);
 						p->data = v;
 					}
+				}
+
+				inline void set(abstract::details::value_desc & desc) {
+					if (_instance)
+						_instance->set(desc);
 				}
 
 			};
@@ -152,7 +165,7 @@ namespace proto {
 
 		struct entity_manager {
 
-			std::map < id_t, entity > entities;
+			std::vector < entity > entities;
 			std::vector < isystem * > systems;
 
 			void initialize() {
@@ -160,7 +173,7 @@ namespace proto {
 					i->initialize(*this);
 
 				for (auto i : entities)
-					i.second.initialize();
+					i.initialize();
 			}
 
 			inline void frame() {
@@ -169,7 +182,7 @@ namespace proto {
 
 			inline void update(const id_t & event_id) {
 				for (auto i : entities)
-					i.second.update(event_id);
+					i.update(event_id);
 
 				for (auto i : systems)
 					i->update(event_id);
@@ -188,12 +201,23 @@ namespace proto {
 			property < math::mat4 > *
 				_transform;
 
+			abstract::component_desc source_description;
+
+			inline transformer(abstract::component_desc & desc) 
+				: source_description (desc)
+			{}
+
 			inline virtual void initialize(entity & entity_inst) {
 				entity_inst.properties
 					.require(text_to_id("position"), math::vec3(), _position)
 					.require(text_to_id("scale"), math::vec3(), _scale)
-					.require(text_to_id("rotation"), math::vec3(), _rotation)
 					.require(text_to_id("transform"), math::mat4(), _transform);
+
+				auto & args = source_description.arguments;
+
+				for (auto & prop_def : args) {
+					entity_inst.properties [prop_def.id].set(prop_def.value);
+				}
 			}
 
 			inline virtual void update(const id_t & event_id) {
@@ -256,11 +280,21 @@ namespace proto {
 
 			visual_system * _system;
 
+			abstract::component_desc source_description;
+
+			inline visual(abstract::component_desc & desc) : source_description(desc) {}
+
 			inline virtual void initialize(entity & entity_inst) {
 				entity_inst.properties
 					.require(text_to_id("material_id"), text_to_id("SOME_MATERIAL_ID"), _material_id)
 					.require(text_to_id("mesh_id"), text_to_id("SOME_MESH_ID"), _mesh_id)
 					.require(text_to_id("transform"), math::mat4(), _transform);
+
+				auto & args = source_description.arguments;
+
+				for (auto & prop_def : args) {
+					entity_inst.properties [prop_def.id].set(prop_def.value);
+				}
 			}
 
 			inline virtual void update(const id_t & event_id) {
@@ -289,46 +323,17 @@ namespace proto {
 
 			inline static void create_entity(entity_manager & manager, abstract::entity_desc & desc ) {
 
-				//entity new_entity;
-				//
-				//if (desc.type == id::types::dynamic_visual_entity) {
-				//
-				//
-				//}
-				//else if (desc.type == id::types::static_visual_entity) {
-				//
-				//}
-				//
-				//
-
-				uint32_t ent_type = std::rand() % 4;
-
 				entity new_entity;
+				
+				for (auto & c : desc.components) {
 
-				switch (ent_type) {
-				case (1) : {
-					new_entity.components.push_back(new transformer());
-					break;
-				}
-				case (2) : {
-					visual * v = new visual();
-					v->_system = (visual_system *)manager.systems[0];
-					new_entity.components.push_back(v);
-					break;
-				}
-				case (3) : {
-					new_entity.components.push_back(new transformer());
-					visual * v = new visual();
-					v->_system = (visual_system *)manager.systems[0];
-					new_entity.components.push_back(v);
-					break;
-				}
-				default: {
-					// do nothing
-				}
+					if (c.type == id::components::transformer)
+						new_entity.components.push_back(new transformer(c));
+
 				}
 
-				manager.entities[std::rand()] = new_entity;
+				manager.entities.push_back(new_entity);
+
 			};
 
 		};
