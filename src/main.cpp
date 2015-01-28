@@ -10,7 +10,7 @@ int main() {
 
 	abstract::world_desc source = harness::generator::run(10000);
 
-	harness::tester tester{
+	harness::tester tester = {
 		5.0
 	};
 

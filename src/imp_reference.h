@@ -330,6 +330,11 @@ namespace proto {
 					if (c.type == id::components::transformer)
 						new_entity.components.push_back(new transformer(c));
 
+					if (c.type == id::components::visual) {
+						visual * v = new visual (c);
+						v->_system = (visual_system *)manager.systems [0];
+						new_entity.components.push_back(v);
+					}
 				}
 
 				manager.entities.push_back(new_entity);
