@@ -7,6 +7,7 @@
 #include <limits>
 #include <random>
 #include <string>
+#include <sstream>
 #include <iomanip>
 
 #include "abstract.h"
@@ -117,6 +118,12 @@ namespace proto {
 		struct test_result {
 			std::string name;
 			double average_fps;
+			
+			inline std::string to_string () {
+				std::stringstream s;
+				s << "[" << name << "] - " << average_fps;
+				return s.str ();
+			}
 		};
 
 		struct tester {
@@ -126,14 +133,12 @@ namespace proto {
 			template <
 				class _entity_factory_t
 			>
-			inline void exec(const std::string & description, abstract::world_desc & world_desc ) {
+			inline test_result exec(const std::string & description, abstract::world_desc & world_desc ) {
 
 					test_result	r = {
 						description,
 						.0
 					};
-
-					std::cout << "[ " << r.name << " ]" << std::endl;
 
 					// create instances
 					auto manager = _entity_factory_t::create_manager();
@@ -156,8 +161,7 @@ namespace proto {
 
 					// report
 					r.average_fps = (double(sum_frames) / double(cycle_time));
-
-					std::cout << " - fps: " << std::right << std::setw(10) << r.average_fps << std::endl;
+					return r;
 				}
 
 		};

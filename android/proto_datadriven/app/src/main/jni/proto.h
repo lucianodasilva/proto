@@ -1,4 +1,4 @@
 #include <jni.h>
 
-JNIEXPORT jstring JNICALL Java_com_munchiecollision_protodatadriven_MainActivity_getMessage
+JNIEXPORT jobjectArray JNICALL Java_com_munchiecollision_protodatadriven_MainActivity_ExecuteNativeTests
           (JNIEnv *env, jobject thisObj);

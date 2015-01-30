@@ -36,10 +36,8 @@ namespace proto {
 			}
 
 			inline virtual void set(abstract::details::value_desc & value) {
-				auto v = dynamic_cast <abstract::details::value_desc::value < _t > * > (value.data);
-
-				if (v) 
-					data = v->data;
+				auto v = static_cast <abstract::details::value_desc::value < _t > * > (value.data);
+				data = v->data;
 			}
 
 		};

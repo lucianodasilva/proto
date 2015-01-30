@@ -13,6 +13,8 @@ android {
 
         ndk {
             moduleName "proto"
+            cFlags "-std=c++11"
+            stl "gnustl_static"
         }
     }
     buildTypes {

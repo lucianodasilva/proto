@@ -131,7 +131,7 @@ namespace proto {
 			inline static void set_field(_t & v, id_t id, abstract::component_desc & cdesc) {
 				for (auto & p : cdesc.arguments) {
 					if (p.id == id) {
-						auto pv = dynamic_cast <abstract::details::value_desc::value < _t > * > (p.value.data);
+						auto pv = static_cast <abstract::details::value_desc::value < _t > * > (p.value.data);
 						v = pv->data;
 						return;
 					}
@@ -192,7 +192,7 @@ namespace proto {
 			inline static void set_field(_t & v, id_t id, abstract::component_desc & cdesc) {
 				for (auto & p : cdesc.arguments) {
 					if (p.id == id) {
-						auto pv = dynamic_cast <abstract::details::value_desc::value < _t > * > (p.value.data);
+						auto pv = static_cast <abstract::details::value_desc::value < _t > * > (p.value.data);
 						v = pv->data;
 						return;
 					}

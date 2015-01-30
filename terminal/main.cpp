@@ -14,9 +14,9 @@ int main() {
 		5.0
 	};
 
-	tester.exec < imp_reference::factory > ("Reference", source);
-	tester.exec < imp_datadriven::factory > ("Data Driven", source);
-
+	std::cout << tester.exec < imp_reference::factory > ("Reference", source).to_string () << std::endl;
+	std::cout << tester.exec < imp_datadriven::factory > ("Data Driven", source).to_string() << std::endl;
+ 
 	int temp;
 	std::cin >> temp;
 	
