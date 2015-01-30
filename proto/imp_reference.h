@@ -179,7 +179,7 @@ namespace proto {
 			}
 
 			inline void update(const id_t & event_id) {
-				for (auto i : entities)
+				for (auto & i : entities)
 					i.update(event_id);
 
 				for (auto i : systems)
