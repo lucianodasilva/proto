@@ -170,7 +170,7 @@ namespace proto {
 				for (auto i : systems)
 					i->initialize(*this);
 
-				for (auto i : entities)
+				for (auto & i : entities)
 					i.initialize();
 			}
 
@@ -257,10 +257,10 @@ namespace proto {
 
 				e_manager->update(events::render);
 
-				for (auto vb : render_items) {
+				for (auto & vb : render_items) {
 					math::mat4 id = math::mat4::identity;
 					math::mat4 t = id * vb.transform;
-					vb.transform = t.invert();
+					//vb.transform = t.invert();
 				}
 
 				render_items.clear();

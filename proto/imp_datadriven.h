@@ -155,7 +155,7 @@ namespace proto {
 				if (events::update != event_id)
 					return;
 
-				for (auto v : properties) {
+				for (auto & v : properties) {
 					v.transform = math::mat4::make_translation(v.position) * math::mat4::make_scale(v.scale);
 				}
 			}
@@ -222,7 +222,7 @@ namespace proto {
 				if (events::update != event_id)
 					return;
 
-				for (auto v : properties) {
+				for (auto & v : properties) {
 
 					auto tp = trans_system->properties[v.transform_index];
 					reg({
@@ -232,10 +232,10 @@ namespace proto {
 					});
 				}
 
-				for (auto vb : render_items) {
+				for (auto & vb : render_items) {
 					math::mat4 id = math::mat4::identity;
 					math::mat4 t = id * vb.transform;
-					vb.transform = t.invert();
+					//vb.transform = t.invert();
 				}
 
 				render_items.clear();
