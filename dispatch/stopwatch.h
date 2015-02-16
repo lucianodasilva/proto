@@ -1,12 +1,12 @@
 #pragma once
-#ifndef _harness_time_h_
-#define _harness_time_h_
+#ifndef _dispatch_stopwatch_h_
+#define _dispatch_stopwatch_h_
 
 #include <chrono>
 
-namespace proto {
+namespace dispatch {
 
-	namespace harness {
+	namespace stopwatch	{
 
 		typedef decltype (std::chrono::high_resolution_clock::now()) time_point;
 

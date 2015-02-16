@@ -17,7 +17,7 @@ namespace dispatch {
 			_t data;
 		};
 
-		static const uint32_t radix_count = sizeof(command_key);
+		static const uint32_t radix_count = sizeof(_k);
 		static const uint32_t table_size = 256 * radix_count;
 
 		size_t		_capacity;
@@ -103,8 +103,8 @@ namespace dispatch {
 			std::fill(_histograms, _histograms + table_size, 0);
 
 			for (size_t i = 0; i < _size; ++i) {
-				p_value = (uint8_t *)_data + i;
-
+				p_value = (uint8_t *)(_data + i);
+			
 				for (size_t j = 0; j < radix_count; ++j)
 					++_hr[j][p_value[j]];
 			}
@@ -122,7 +122,7 @@ namespace dispatch {
 				for (uint32_t i = 0; i < _size; ++i) {
 					item_t & item = _data[i];
 
-					value = ((uint8_t *)(_data + i))[radix];
+					value = ((uint8_t *)(&item.key))[radix];
 					_data_swap_buffer[_or[radix][value]++] = item;
 				}
 
