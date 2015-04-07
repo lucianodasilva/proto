@@ -3,32 +3,62 @@
 
 #include <cinttypes>
 
+/*	==== | 64 bit key | ====
+ *
+ *  | 2 bit			| 2 bit	| 4 nul | 2 byte		| 2 bit 				| 6 bit | 		< too much waste
+ *
+ * 	| key type		|
+ * 		resource	| < function pointer >
+ * 		render		| full screen	| render target	| command type			| layer | opaque 	| material ( texture / colors and stuffs )
+ *													| ( default )			|		|			| depth
+ *													| ( pre_render_custom )	| < function pointer >
+ */
+
 namespace dispatch {
+	namespace commands {
+
+		enum struct key_t : uint8_t {
+			resource 	= 0x00, // 0000 0000
+			render 		= 0x40	// 0100 0000
+		};
+
+		enum struct fullscreen_t : uint8_t {
+			scene 		= 0x00, // 0000 0000
+			postprocess = 0x10, // 0001 0000
+			hud			= 0x20  // 0010 0000
+		};
+
+		using render_target_t = uint16_t;
+
+		enum struct command_t : uint8_t {
+
+		};
+	}
 
 	enum struct command_type : uint8_t {
-		resource = 0,
-		render = 1
+		resource 	= 0x00,
+		render 		= 0x01
 	};
 
-	enum struct resource_command : uint8_t {	
-		create = 16,
-		update = 17,
-		erase = 18
+	enum struct resource_command : uint8_t {
+		create 		= 0x10,
+		update		= 0x11,
+		erase 		= 0x12
 	};
 
 	enum struct render_target_command : uint8_t {
-		clear = 0,
-		present = 255
+		clear 		= 0x00,
+		present 	= 0xFF
 	};
 
 	enum struct render_opacity : uint8_t {
-		opaque = 0,
-		transparent = 128
+		opaque 		= 0x00,
+		transparent = 0xF0
 	};
 
 	union command_key {
 
-		uint32_t full;
+		uint32_t 	full;
 		uint16_t	ushort_v[2];
 		uint8_t		uchar_v [4];
 
@@ -38,7 +68,7 @@ namespace dispatch {
 
 		inline static command_key resource ( resource_command action ) {
 			command_key k = { 0 };
-			
+
 			k.uchar_v[0] =
 				(uint8_t)command_type::resource + (uint8_t)action;
 
