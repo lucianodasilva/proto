@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.4)
-project(dispatch)
+project(tilling)
 
 file ( GLOB SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/*.cpp
@@ -9,7 +9,7 @@ file ( GLOB HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/*.h
 )
 
-add_executable(dispatch ${SOURCE_FILES} ${HEADER_FILES})
+add_executable(tilling ${SOURCE_FILES} ${HEADER_FILES})
 
 # enable c++11
 if (NOT MSVC)
