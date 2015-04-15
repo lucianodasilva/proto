@@ -7,6 +7,7 @@
 #include "vmath.matrixes.h"
 
 #include <cmath>
+#include <limits>
 
 namespace vmath {
 
