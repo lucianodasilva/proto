@@ -1,41 +1,28 @@
-#include <GL/glew.h>
 
-#include <SFML/Graphics.hpp>
-#include <SFML/OpenGL.hpp>
+#include <GL/glew.h>
+#include <GL/freeglut.h>
+
+//#include <SFML/Graphics.hpp>
+//#include <SFML/OpenGL.hpp>
+
+void render_callback () {
+
+}
 
 int main(int arg_c, char * arg_v[]) {
 
-    sf::ContextSettings contextSettings;
-    contextSettings.depthBits = 32;
+    glutInit(&arg_c, arg_v);
 
-    sf::RenderWindow window (sf::VideoMode (800, 600), "Tilling", sf::Style::Default, contextSettings);
-    window.setVerticalSyncEnabled(false);
+    glutInitWindowPosition (-1, -1);
+    glutInitWindowSize (600, 600);
 
-    window.setActive(true);
+    glutInitDisplayMode (GLUT_RGBA);
 
-    GLenum err = glewInit ();
-    if (GLEW_OK != err) {
-        window.close ();
-        return EXIT_FAILURE;
-    }
+    glutCreateWindow ("Tilling Demo");
 
-    while (window.isOpen ()) {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close ();
+    glutDisplayFunc (&render_callback);
 
-            if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Escape))
-                window.close ();
+    glutMainLoop();
 
-            //if (event.type == sf::Event::Resized)
-                //glViewport //
-
-            // render stuffs
-            window.display ();
-        }
-    }
-
-    return EXIT_SUCCESS;
+    return 0;
 }
