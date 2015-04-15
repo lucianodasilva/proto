@@ -1,6 +1,4 @@
-#include "details.h"
-
-#define SFML_STATIC
+#include <GL/glew.h>
 
 #include <SFML/Graphics.hpp>
 #include <SFML/OpenGL.hpp>
@@ -14,6 +12,12 @@ int main(int arg_c, char * arg_v[]) {
     window.setVerticalSyncEnabled(false);
 
     window.setActive(true);
+
+    GLenum err = glewInit ();
+    if (GLEW_OK != err) {
+        window.close ();
+        return EXIT_FAILURE;
+    }
 
     while (window.isOpen ()) {
         sf::Event event;
