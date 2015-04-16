@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.8.4)
 
+project (tilling)
+
 # enable c++11
 if (NOT MSVC)
 	if (CMAKE_GENERATOR STREQUAL Xcode)

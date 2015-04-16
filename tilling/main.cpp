@@ -4,11 +4,18 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 
+#include "proto.debug.h"
+
 void render_callback () {
 
 }
 
 int main(int arg_c, char * arg_v[]) {
+
+	debug_print << "this is a message";
+
+
+	return 0;
 
     glutInit(&arg_c, arg_v);
 

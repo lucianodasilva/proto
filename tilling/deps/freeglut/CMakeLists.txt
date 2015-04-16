@@ -2,7 +2,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8.8 FATAL_ERROR)
 PROJECT(freeglut)
 
 # for multiarch LIBDIR support (requires cmake>=2.8.8)
-INCLUDE(GNUInstallDirs)
+#INCLUDE(GNUInstallDirs)
 
 # NOTE: On Windows and Cygwin, the dll's are placed in the
 # CMAKE_RUNTIME_OUTPUT_DIRECTORY, while their corresponding import
@@ -45,11 +45,11 @@ OPTION(FREEGLUT_PRINT_WARNINGS "Lib prints warnings to stderr" ON)
 
 # option to also copy .pdb files to install directory when executing
 # INSTALL target
-IF(MSVC)
-    OPTION(INSTALL_PDB "Also install .pdb files" ON)
-ELSE()
-    SET(INSTALL_PDB OFF)
-ENDIF()
+#IF(MSVC)
+#    OPTION(INSTALL_PDB "Also install .pdb files" ON)
+#ELSE()
+#    SET(INSTALL_PDB OFF)
+#ENDIF()
 
 # OpenGL ES support
 OPTION(FREEGLUT_GLES "Use OpenGL ES (requires EGL)" OFF)
@@ -335,7 +335,7 @@ IF(WIN32)
     CONFIGURE_FILE(${FREEGLUT_PATH}/freeglut.rc.in ${CMAKE_BINARY_DIR}/freeglut.rc)
     IF (MSVC AND NOT CMAKE_CL_64)
         # .def file only for 32bit Windows builds with Visual Studio
-        CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/src/freeglutdll.def.in ${CMAKE_BINARY_DIR}/freeglutdll.def)
+        CONFIGURE_FILE(${FREEGLUT_PATH}/src/freeglutdll.def.in ${CMAKE_BINARY_DIR}/freeglutdll.def)
     ENDIF()
 ENDIF()
 
@@ -411,34 +411,6 @@ ENDIF()
 IF(FREEGLUT_BUILD_STATIC_LIBS)
     TARGET_LINK_LIBRARIES(freeglut_static ${LIBS})
 ENDIF()
-
-IF(FREEGLUT_BUILD_SHARED_LIBS)
-    INSTALL(TARGETS freeglut
-            RUNTIME DESTINATION bin
-            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    )
-    IF(INSTALL_PDB)
-        INSTALL(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug/freeglut${CMAKE_DEBUG_POSTFIX}.pdb
-            DESTINATION bin
-			CONFIGURATIONS Debug)
-    ENDIF()
-ENDIF()
-IF(FREEGLUT_BUILD_STATIC_LIBS)
-    INSTALL(TARGETS freeglut_static
-            RUNTIME DESTINATION bin
-            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    )
-    IF(INSTALL_PDB)
-        INSTALL(FILES ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/Debug/freeglut_static${CMAKE_DEBUG_POSTFIX}.pdb
-            DESTINATION lib
-			CONFIGURATIONS Debug)
-    ENDIF()
-ENDIF()
-INSTALL(FILES ${FREEGLUT_HEADERS} DESTINATION include/GL)
-
-
 
 # Optionally build demos, on by default.
 option( FREEGLUT_BUILD_DEMOS "Build FreeGLUT demos." ON )
