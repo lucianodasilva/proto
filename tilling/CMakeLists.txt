@@ -18,8 +18,9 @@ set (FREEGLUT_BUILD_STATIC_LIBS ON CACHE BOOL "" FORCE)
 set (FREEGLUT_BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set (FREEGLUT_BUILD_DEMOS OFF CACHE BOOL "" FORCE)
 
-include_directories(deps/freeglut/include)
-add_subdirectory (deps/freeglut/)
+#include_directories(deps/freeglut/include)
+#add_subdirectory (deps/freeglut/)
+include (deps/freeglut/CMakeLists.txt)
 
 ###############################################
 

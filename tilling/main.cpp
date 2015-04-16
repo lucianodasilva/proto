@@ -1,9 +1,8 @@
 
+#define FREEGLUT_STATIC
+
 #include <GL/glew.h>
 #include <GL/freeglut.h>
-
-//#include <SFML/Graphics.hpp>
-//#include <SFML/OpenGL.hpp>
 
 void render_callback () {
 
