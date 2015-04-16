@@ -169,6 +169,3 @@ pip-log.txt
 # Mac crap
 .DS_Store
 /media/FontGen/nbproject/private/
-
-#CLion crap
-.idea
