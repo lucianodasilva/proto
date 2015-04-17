@@ -12,17 +12,23 @@ namespace proto {
     private:
 
 		GLuint	_framebuffer_id;
-		GLuint	_default_depth_id;
-		bool	_uses_default;
+		GLuint	_auxiliar_id;
+		bool	_is_active;
+		bool	_has_renderbuffer;
+		bool	_has_no_backbuffer;
+
+		framebuffer ();
 
     public:
 
-		inline void bind () const { glBindFramebuffer (GL_FRAMEBUFFER, _framebuffer_id); }
-
-		framebuffer ();
+		framebuffer (framebuffer && v);
 		~framebuffer ();
 
-		void set_target (const texture & tex);
+		void bind () const;
+		
+		static framebuffer create (const texture & color_buffer);
+		static framebuffer create (const texture & color_buffer, const texture & depth_buffer );
+		static framebuffer create_depth_only (const texture & depth_buffer);
 
     };
 

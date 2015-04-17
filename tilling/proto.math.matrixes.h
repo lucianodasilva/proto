@@ -348,7 +348,7 @@ namespace proto {
 		};
 	}
 
-	using mat4 = vmath::mat4_t<float>;
+	using mat4 = math::mat4_t<float>;
 }
 
 #endif

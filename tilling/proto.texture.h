@@ -13,6 +13,7 @@ namespace proto {
     private:
 
 		GLuint			_texture_id;
+		bool			_is_active;
 
 		texture_format	_format;
 
@@ -28,6 +29,8 @@ namespace proto {
 			_width,
 			_height;
 
+		texture ();
+
     public:
 
 		inline GLuint id () const { return _texture_id; }
@@ -41,12 +44,12 @@ namespace proto {
 		inline uint32_t width () const { return _width; }
 		inline uint32_t height () const { return _height; }
 
-		texture ();
+		texture (texture && v);
 		~texture ();
 
 		inline void bind () const { glBindTexture (GL_TEXTURE_2D, _texture_id); }
 
-		void set (
+		static texture create (
 			const uint8_t * data,
 			uint32_t width,
 			uint32_t height,

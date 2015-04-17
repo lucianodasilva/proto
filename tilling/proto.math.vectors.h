@@ -251,22 +251,22 @@ namespace proto {
 
 	}
 
-	using point = vmath::details::vec2_t < int32_t >;
+	using point = math::details::vec2_t < int32_t >;
 
-	using vec2 = vmath::details::vec2_t<float>;
-	using vec3 = vmath::details::vec3_t<float>;
-	using vec4 = vmath::details::vec4_t<float>;
+	using vec2 = math::details::vec2_t<float>;
+	using vec3 = math::details::vec3_t<float>;
+	using vec4 = math::details::vec4_t<float>;
 
-	using ivec2 = vmath::details::vec2_t < int32_t >;
-	using ivec3 = vmath::details::vec3_t < int32_t >;
-	using ivec4 = vmath::details::vec4_t < int32_t >;
+	using ivec2 = math::details::vec2_t < int32_t >;
+	using ivec3 = math::details::vec3_t < int32_t >;
+	using ivec4 = math::details::vec4_t < int32_t >;
 
-	using uvec2 = vmath::details::vec2_t < uint32_t >;
-	using uvec3 = vmath::details::vec3_t < uint32_t >;
-	using uvec4 = vmath::details::vec4_t < uint32_t >;
+	using uvec2 = math::details::vec2_t < uint32_t >;
+	using uvec3 = math::details::vec3_t < uint32_t >;
+	using uvec4 = math::details::vec4_t < uint32_t >;
 
-	using color = vmath::details::vec3_t<float>;
-	using color4 = vmath::details::vec4_t<float>;
+	using color = math::details::vec3_t<float>;
+	using color4 = math::details::vec4_t<float>;
 }
 
 #endif
