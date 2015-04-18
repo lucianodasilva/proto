@@ -1,8 +1,5 @@
 #include "proto.program.h"
 #include "proto.debug.h"
-#include "proto.id.h"
-
-#include <limits>
 
 namespace proto {
 
@@ -71,7 +68,7 @@ namespace proto {
 	}
 
 	uniform_t program::get_uniform (const id_t & id) const {
-		auto & it = _uniforms.find (id);
+		auto it = _uniforms.find (id);
 
 		if (it == _uniforms.cend ())
 			return std::numeric_limits < uint32_t >::max ();

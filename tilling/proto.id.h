@@ -11,8 +11,8 @@ namespace proto {
 
 	namespace details {
 
-		static constexpr uint64_t hash_basis (14695981039346656037);
-		static constexpr uint64_t hash_prime (1099511628211);
+		static constexpr uint64_t hash_basis = 14695981039346656037U;
+		static constexpr uint64_t hash_prime = 1099511628211;
 
 		constexpr uint64_t hash_one (char c, const char * remain, uint64_t value) {
 			return c == 0 ? value : hash_one (remain[0], remain + 1, (value ^ c) * hash_prime);
@@ -53,8 +53,8 @@ namespace proto {
 
 	using id_t = uint32_t;
 
-	inline id_t operator "" _id (const char * v) {
-		return (id_t)details::hash (v);
+	inline id_t create_id (const char * v) {
+		return id_t { (uint32_t)details::hash (v) };
 	}
 
 	constexpr id_t operator "" _id (const char * v) {
