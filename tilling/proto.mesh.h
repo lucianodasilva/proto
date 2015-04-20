@@ -16,7 +16,7 @@ namespace proto {
 		normal =	0x0004
 	};
 
-	bool operator & (mesh_attributes v1, mesh_attributes v2) {
+	inline bool operator & (mesh_attributes v1, mesh_attributes v2) {
 		return ((uint32_t)v1 & (uint32_t)v2) != 0;
 	}
 
@@ -31,11 +31,15 @@ namespace proto {
 			_index_buffer_id,
 			_vbo_id;
 		
+		uint32_t _index_count;
+
 		bool _is_active;
 
 		mesh ();
 
     public:
+
+		uint32_t index_count () const { return _index_count; }
 
 		mesh (mesh && v);
 		~mesh ();
@@ -59,7 +63,12 @@ namespace proto {
 		void update_index_buffer (
 				const uint16_t *	index_buffer,
 				uint32_t			index_buffer_size
-		) const;
+		);
+
+		static mesh create_quad (
+			const vec3 & direction,
+			float size
+		);
 
 		static mesh create_cube (
 			float size

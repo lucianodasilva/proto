@@ -23,6 +23,7 @@ set (FREEGLUT_BUILD_DEMOS OFF CACHE BOOL "" FORCE)
 #include_directories(deps/freeglut/include)
 #add_subdirectory (deps/freeglut/)
 include (deps/freeglut/CMakeLists.txt)
+add_definitions(-DFREEGLUT_STATIC)
 
 ###############################################
 

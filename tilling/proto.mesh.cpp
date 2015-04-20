@@ -147,6 +147,8 @@ namespace proto {
 		glBindBuffer (GL_ARRAY_BUFFER, 0);
 		glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);
 
+		new_m._index_count = index_buffer_size;
+
 		return new_m;
 	}
 
@@ -165,13 +167,44 @@ namespace proto {
 	void mesh::update_index_buffer (
 		const uint16_t *	index_buffer,
 		uint32_t			index_buffer_size
-		) const {
+	) {
 		gl_error_guard ("MESH UPDATE INDEX BUFFER");
 
 		glBindVertexArray (_vbo_id);
 		glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, _index_buffer_id);
 
 		glBufferSubData (GL_ELEMENT_ARRAY_BUFFER, 0, index_buffer_size * sizeof (uint16_t), (GLvoid *)index_buffer);
+		_index_count = index_buffer_size;
+	}
+
+	inline void calculate_quad (
+		float * address, 
+		const vec3 & center, 
+		float size, 
+		const vec3 & normal
+	) {
+
+		float hsize = size / 2.0F;
+
+		vec3 v;
+
+		// top left
+		v = proto::math::cross ({ -1.F, 1.F, .0F }, normal) + center;
+		// top right
+		v = proto::math::cross ({ 1.F, 1.F, .0F }, normal) + center;
+		// bottom left
+		v = proto::math::cross ({ -1.F, -1.F, .0F }, normal) + center;
+		// bottom right
+		v = proto::math::cross ({ 1.F, -1.F, .0F }, normal) + center;
+
+	}
+
+	mesh mesh::create_quad (const vec3 & direction, float size) {
+		
+		
+
+
+
 	}
 
 	mesh mesh::create_cube ( float size ) {

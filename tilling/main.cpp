@@ -1,21 +1,20 @@
 
-#define FREEGLUT_STATIC
-
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 
 #include "proto.debug.h"
+#include "proto.renderer.h"
+
+proto::renderer r;
 
 void render_callback () {
+	r.clear ({ .0F, .2F, .3F }, proto::clear_mask::color | proto::clear_mask::depth);
 
+
+	r.present ();
 }
 
 int main(int arg_c, char * arg_v[]) {
-
-	debug_print << "this is a message";
-
-
-	return 0;
 
     glutInit(&arg_c, arg_v);
 
