@@ -3,8 +3,8 @@
 
 namespace proto {
 
-	int32_t mesh::calc_stride (mesh_attributes attributes) {
-		int32_t stride = 0;
+	size_t mesh::calc_stride (mesh_attributes attributes) {
+		size_t stride = 0;
 
 		if (attributes & mesh_attributes::position)
 			stride += sizeof (vec3);
@@ -17,7 +17,7 @@ namespace proto {
 	}
 
 	void mesh::define_attributes (mesh_attributes attributes) {
-		int32_t
+		size_t
 			offset = 0,
 			stride = calc_stride (attributes);
 
@@ -172,5 +172,54 @@ namespace proto {
 		glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, _index_buffer_id);
 
 		glBufferSubData (GL_ELEMENT_ARRAY_BUFFER, 0, index_buffer_size * sizeof (uint16_t), (GLvoid *)index_buffer);
+	}
+
+	mesh mesh::create_cube ( float size ) {
+
+		float hsize = size / 2.0F;
+
+		// position | uv
+
+		float vertex [] = {
+		// front
+			-hsize, hsize, -hsize, 	.0F, .0F,
+			hsize, hsize, -hsize, 	1.F, .0F,
+			hsize, -hsize, -hsize,	1.F, 1.F,
+			-hsize, -hsize, -hsize, .0F, 1.0F,
+		// left
+			-hsize, hsize, hsize, 	.0F, .0F,
+			-hsize, hsize, -hsize, 	1.F, .0F,
+			-hsize, -hsize, -hsize,	1.F, 1.F,
+			-hsize, -hsize, hsize, 	.0F, 1.0F,
+		// right
+			hsize, hsize, -hsize, 	.0F, .0F,
+			hsize, hsize, hsize, 	1.F, .0F,
+			hsize, -hsize, hsize,	1.F, 1.F,
+			hsize, -hsize, -hsize,  .0F, 1.0F,
+		// back
+			hsize, hsize, hsize, 	.0F, .0F,
+			-hsize, hsize, hsize, 	1.F, .0F,
+			-hsize, -hsize, hsize,	1.F, 1.F,
+			hsize, -hsize, hsize, 	.0F, 1.0F,
+		// top
+			-hsize, hsize, hsize, 	.0F, .0F,
+			hsize, hsize, hsize, 	1.F, .0F,
+			hsize, hsize, -hsize,	1.F, 1.F,
+			-hsize, hsize, -hsize, 	.0F, 1.0F,
+		//bottom
+			-hsize, -hsize, -hsize, .0F, .0F,
+			hsize, -hsize, -hsize, 	1.F, .0F,
+			hsize, -hsize, hsize,	1.F, 1.F,
+			-hsize, -hsize, hsize,  .0F, 1.0F
+		};
+
+		/*return create (
+			static_cast < uint8_t * > (vertex),
+
+		)*/
+
+		mesh m;
+
+		return m;
 	}
 }

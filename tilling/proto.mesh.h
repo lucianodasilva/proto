@@ -23,7 +23,7 @@ namespace proto {
     class mesh {
     private:
 
-		static int32_t calc_stride (mesh_attributes attributes);
+		static size_t calc_stride (mesh_attributes attributes);
 		static void define_attributes (mesh_attributes attributes);
 
 		GLuint
@@ -57,9 +57,14 @@ namespace proto {
 		) const;
 
 		void update_index_buffer (
-			const uint16_t *	index_buffer,
-			uint32_t			index_buffer_size
+				const uint16_t *	index_buffer,
+				uint32_t			index_buffer_size
 		) const;
+
+		static mesh create_cube (
+			float size
+		);
+
     };
 
 }
