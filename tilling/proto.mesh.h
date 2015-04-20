@@ -66,8 +66,8 @@ namespace proto {
 		);
 
 		static mesh create_quad (
-			const vec3 & direction,
-			float size
+			float size,
+			const vec3 & direction
 		);
 
 		static mesh create_cube (

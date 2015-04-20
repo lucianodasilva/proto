@@ -1,5 +1,6 @@
 #include "proto.mesh.h"
 #include "proto.debug.h"
+#include "proto.mesh_builder.h"
 
 namespace proto {
 
@@ -177,82 +178,34 @@ namespace proto {
 		_index_count = index_buffer_size;
 	}
 
-	inline void calculate_quad (
-		float * address, 
-		const vec3 & center, 
-		float size, 
-		const vec3 & normal
-	) {
 
-		float hsize = size / 2.0F;
-
-		vec3 v;
-
-		// top left
-		v = proto::math::cross ({ -1.F, 1.F, .0F }, normal) + center;
-		// top right
-		v = proto::math::cross ({ 1.F, 1.F, .0F }, normal) + center;
-		// bottom left
-		v = proto::math::cross ({ -1.F, -1.F, .0F }, normal) + center;
-		// bottom right
-		v = proto::math::cross ({ 1.F, -1.F, .0F }, normal) + center;
-
-	}
-
-	mesh mesh::create_quad (const vec3 & direction, float size) {
-		
-		
-
-
-
+	mesh mesh::create_quad (float size, const vec3 & direction) {
+		mesh_builder builder;
+		builder.add_quad (size, {.0F, .0F, .0F}, direction);
+		return builder.make_mesh ();
 	}
 
 	mesh mesh::create_cube ( float size ) {
 
-		float hsize = size / 2.0F;
+		mesh_builder builder;
 
-		// position | uv
+		vec3
+			top = {.0F, 1.F, .0F},
+			bottom = {.0F, -1.0F, .0F},
+			left = {-1.F, .0F, .0F},
+			right = {1.F, .0F, .0F},
+			back = {.0F, .0F, 1.F},
+			front = {.0, .0F, -1.F};
 
-		float vertex [] = {
-		// front
-			-hsize, hsize, -hsize, 	.0F, .0F,
-			hsize, hsize, -hsize, 	1.F, .0F,
-			hsize, -hsize, -hsize,	1.F, 1.F,
-			-hsize, -hsize, -hsize, .0F, 1.0F,
-		// left
-			-hsize, hsize, hsize, 	.0F, .0F,
-			-hsize, hsize, -hsize, 	1.F, .0F,
-			-hsize, -hsize, -hsize,	1.F, 1.F,
-			-hsize, -hsize, hsize, 	.0F, 1.0F,
-		// right
-			hsize, hsize, -hsize, 	.0F, .0F,
-			hsize, hsize, hsize, 	1.F, .0F,
-			hsize, -hsize, hsize,	1.F, 1.F,
-			hsize, -hsize, -hsize,  .0F, 1.0F,
-		// back
-			hsize, hsize, hsize, 	.0F, .0F,
-			-hsize, hsize, hsize, 	1.F, .0F,
-			-hsize, -hsize, hsize,	1.F, 1.F,
-			hsize, -hsize, hsize, 	.0F, 1.0F,
-		// top
-			-hsize, hsize, hsize, 	.0F, .0F,
-			hsize, hsize, hsize, 	1.F, .0F,
-			hsize, hsize, -hsize,	1.F, 1.F,
-			-hsize, hsize, -hsize, 	.0F, 1.0F,
-		//bottom
-			-hsize, -hsize, -hsize, .0F, .0F,
-			hsize, -hsize, -hsize, 	1.F, .0F,
-			hsize, -hsize, hsize,	1.F, 1.F,
-			-hsize, -hsize, hsize,  .0F, 1.0F
-		};
+		float hs = size / 2.0F;
 
-		/*return create (
-			static_cast < uint8_t * > (vertex),
+		builder.add_quad (size, top * hs, top);
+		builder.add_quad (size, bottom * hs, bottom);
+		builder.add_quad (size, left * hs, left);
+		builder.add_quad (size, right * hs, right);
+		builder.add_quad (size, back * hs, back);
+		builder.add_quad (size, front * hs, front);
 
-		)*/
-
-		mesh m;
-
-		return m;
+		return builder.make_mesh();
 	}
 }
