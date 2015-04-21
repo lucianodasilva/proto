@@ -10,11 +10,11 @@ using namespace std;
 namespace proto {
 	namespace math {
 
-		enum axis_index : uint32_t {
-			axis_index_x = 0U,
-			axis_index_y = 1U,
-			axis_index_z = 2U,
-			axis_index_w = 3U
+		enum class axis_index : uint32_t {
+			x = 0U,
+			y = 1U,
+			z = 2U,
+			w = 3U
 		};
 
 		namespace details {

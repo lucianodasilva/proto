@@ -1,7 +1,18 @@
 #include "proto.texture.h"
+#include "proto.color.h"
 #include "proto.debug.h"
 
+#include <utility>
+
 namespace proto {
+
+	void texture::swap (texture & t) {
+		std::swap (_texture_id, t._texture_id);
+		std::swap (_is_active, t._is_active);
+		std::swap (_format, t._format);
+		std::swap (_mag_filter, t._mag_filter);
+		std::swap (_min_filter, t._min_filter);
+	}
 
     texture::texture() :
 		_texture_id (0),
@@ -10,14 +21,8 @@ namespace proto {
 		_height (0)
 	{}
 
-	texture::texture (texture && v) {
-		using namespace std;
-
-		swap (_texture_id, v._texture_id);
-		swap (_is_active, v._is_active);
-		swap (_format, v._format);
-		swap (_mag_filter, v._mag_filter);
-		swap (_min_filter, v._min_filter);
+	texture::texture (texture && v) : texture () {
+		swap (v);
 	}
 
     texture::~texture() {
@@ -25,6 +30,11 @@ namespace proto {
 		if (_is_active)
 			glDeleteTextures (1, &_texture_id);
     }
+
+	texture & texture::operator = (texture && t) {
+		swap (t);
+		return *this;
+	}
 
 	texture texture::create (
 		const uint8_t * data,
@@ -112,4 +122,52 @@ namespace proto {
 		glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, -1.0F);
 
 	}
+
+	texture texture::create_checkers (
+		uint32_t width, uint32_t height,
+		uint32_t div_x, uint32_t div_y,
+		color4 on_color, color4 off_color,
+		texture_wrap wrap_s = texture_wrap::clamp_to_border,
+		texture_wrap wrap_t = texture_wrap::clamp_to_border,
+		texture_filter mag_filter = texture_filter::nearest,
+		texture_filter min_filter = texture_filter::nearest
+	) {
+		
+		uint8_t on_c = color4_int::from_color (on_color);
+		uint8_t off_c = color4_int::from_color (off_color);
+
+		uint32_t size = width * height;
+		
+		uint32_t * texture_data = new uint32_t[size];
+
+		uint32_t
+			ix = 0,
+			iy = 0,
+			dx = width / div_x,
+			dy = height / div_y;
+		
+		for (int i = 0; i < size; ++i) 
+		{
+			iy = i / width;
+			ix = (i - (iy * width));
+
+			iy /= dy;
+			ix /= dx;
+
+			if (ix % 2 ^ iy % 2) {
+				texture_data[i] = on_c;
+			} else {
+				texture_data[i] = off_c;
+			}
+		}
+
+		auto_guard ([texture_data] { delete[] texture_data; });
+
+		return create (
+			reinterpret_cast < uint8_t * > (texture_data),
+			width, height, texture_format::rgba,
+			wrap_s, wrap_t, mag_filter, min_filter
+		);
+	}
+
 }

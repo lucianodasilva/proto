@@ -12,7 +12,7 @@ namespace proto {
     }
 
     uint16_t mesh_builder::add_element ( const element  & v ) {
-        uint16_t index = _elements.size ();
+		uint16_t index = static_cast < uint16_t > (_elements.size ());
         _elements.push_back (v);
 
         return index;
@@ -22,7 +22,7 @@ namespace proto {
         _faces.push_back (f);
     }
 
-    inline void add_quad (
+    void mesh_builder::add_quad (
             float size,
             const vec3 & center,
             const vec3 & normal
@@ -32,13 +32,13 @@ namespace proto {
 
         vec3
         // top left
-            v1 = proto::math::cross ({ -hs, hs, .0F }, normal) + center,
+			v1 = proto::math::cross ( vec3 { -hs, hs, .0F }, normal) + center,
         // top right
-            v2 = proto::math::cross ({ hs, hs, .0F }, normal) + center,
+			v2 = proto::math::cross ( vec3 { hs, hs, .0F }, normal) + center,
         // bottom left
-            v3 = proto::math::cross ({ -hs, -hs, .0F }, normal) + center,
+            v3 = proto::math::cross ( vec3 { -hs, -hs, .0F }, normal) + center,
         // bottom right
-            v4 = proto::math::cross ({ hs, -hs, .0F }, normal) + center;
+            v4 = proto::math::cross ( vec3 { hs, -hs, .0F }, normal) + center;
 
         auto
             i1 = add_element ({v1, {.0F, .0F}, normal}),
@@ -59,10 +59,10 @@ namespace proto {
 
         auto attributes = mesh_attributes::position | mesh_attributes::uv | mesh_attributes::normal;
 
-        auto data = static_cast < uint8_t * > (_elements.data ());
+        auto data = reinterpret_cast < uint8_t * > (_elements.data ());
         auto data_size = _elements.size () * sizeof (element);
 
-        auto index = static_cast < uint16_t * > (_faces.data ());
+        auto index = reinterpret_cast < uint16_t * > (_faces.data ());
         auto index_count = _faces.size () * 3;
 
         return mesh::create (data, data_size, index, index_count, attributes, false);

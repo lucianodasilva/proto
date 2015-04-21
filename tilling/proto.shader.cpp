@@ -1,7 +1,15 @@
 #include "proto.shader.h"
 #include "proto.debug.h"
 
+#include <utility>
+
 namespace proto {
+
+	void shader::swap (shader & s) {
+		std::swap (_shader_id, s._shader_id);
+		std::swap (_type, s._type);
+		std::swap (_is_active, s._is_active);
+	}
 
 	shader::shader () : 
 		_shader_id (0),
@@ -9,17 +17,20 @@ namespace proto {
 		_is_active (false) 
 	{}
 
+	shader::shader (shader && v) : shader ()
+	{
+		swap (v);
+	}
+
 	shader::~shader () {
 		gl_error_guard ("SHADER DELETE");
 		if (_is_active)
 			glDeleteShader (_shader_id);
 	}
 
-	shader::shader (shader && v) 
-	{
-		std::swap (_shader_id,	v._shader_id);
-		std::swap (_type,		v._type);
-		std::swap (_is_active,		v._is_active);
+	shader & shader::operator = (shader && s) {
+		swap (s);
+		return *this;
 	}
 
 	shader shader::compile ( shader_type type, const std::string & source) {

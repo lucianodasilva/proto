@@ -123,6 +123,14 @@ namespace proto {
 				r.data[i] = lerp(v1.data[i], v2.data[i], alpha);
 		}
 
+		// naive implementation
+		template < class _t >
+		inline _t clamp (const _t & v, const _t & min_v, const _t & max_v) {
+			if (v < min_v) return min_v;
+			if (v > max_v) return max_v;
+			return v;
+		}
+
 	}
 }
 

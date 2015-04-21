@@ -16,6 +16,9 @@ namespace proto {
 		pixel	= GL_FRAGMENT_SHADER
 	};
 
+#define proto_shader_source(source) \
+	#source "\n"
+
 	class shader {
 	private:
 
@@ -23,12 +26,16 @@ namespace proto {
 		shader_type		_type;
 		bool			_is_active;
 
-		shader ();
 
 	public:
 
+		void swap (shader & s);
+
+		shader ();
 		shader (shader && v);
 		~shader ();
+
+		shader & operator = (shader && s);
 
 		inline GLuint		id () const { return _shader_id; }
 		inline shader_type	type () const { return _type; }

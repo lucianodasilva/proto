@@ -1,22 +1,31 @@
 #include "proto.program.h"
 #include "proto.debug.h"
 
+#include <utility>
+
 namespace proto {
+
+	void program::swap (program & p) {
+		std::swap (_program_id, p._program_id);
+		std::swap (_is_active, p._is_active);
+		std::swap (_uniforms, p._uniforms);
+	}
 
 	program::program () : _program_id (0), _is_active (false) {}
 
-	program::program (program && v) {
-		using namespace std;
-
-		swap (_program_id,	v._program_id);
-		swap (_is_active,	v._is_active);
-		swap (_uniforms,	v._uniforms);
+	program::program (program && v) : program () {
+		swap (v);
 	}
 
 	program::~program () {
 		gl_error_guard ("PROGRAM DELETE");
 		if (_is_active)
 			glDeleteProgram (_program_id);
+	}
+
+	program & program::operator = (program && p) {
+		swap (p);
+		return *this;
 	}
 
 	void program::bind () const {

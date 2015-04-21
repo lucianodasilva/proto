@@ -22,12 +22,16 @@ namespace proto {
 
 		std::map < id_t, uniform_t > _uniforms;
 
-		program ();
 
 	public:
 
+		void swap (program & p);
+
+		program ();
 		program (program && v);
 		~program ();
+
+		program & operator = (program && p);
 
 		inline GLuint	id () const { return _program_id; }
 

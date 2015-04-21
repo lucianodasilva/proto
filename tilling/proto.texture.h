@@ -6,6 +6,7 @@
 #include <cinttypes>
 
 #include "proto.formats.h"
+#include "proto.math.h"
 
 namespace proto {
 
@@ -29,7 +30,6 @@ namespace proto {
 			_width,
 			_height;
 
-		texture ();
 
     public:
 
@@ -44,8 +44,13 @@ namespace proto {
 		inline uint32_t width () const { return _width; }
 		inline uint32_t height () const { return _height; }
 
+		void swap (texture & t);
+
+		texture ();
 		texture (texture && v);
 		~texture ();
+
+		texture & operator = (texture && t);
 
 		inline void bind () const { glBindTexture (GL_TEXTURE_2D, _texture_id); }
 
@@ -67,6 +72,17 @@ namespace proto {
 			uint32_t width,
 			uint32_t height
 		) const ;
+
+		static texture create_checkers (
+			uint32_t width, uint32_t height, 
+			uint32_t div_x, uint32_t div_y,
+			color4 on_color = { 1.F, 1.F, .0F, 1.F },
+			color4 off_color = { .0F, .0F, .0F, 1.F },
+			texture_wrap wrap_s = texture_wrap::clamp_to_border,
+			texture_wrap wrap_t = texture_wrap::clamp_to_border,
+			texture_filter mag_filter = texture_filter::nearest,
+			texture_filter min_filter = texture_filter::nearest
+		);
 
     };
 

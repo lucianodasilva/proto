@@ -5,7 +5,9 @@
 
 #include "proto.math.vectors.h"
 
+#if !_MSC_VER
 #pragma clang diagnostic ignored "-Wmissing-braces"
+#endif
 
 namespace proto {
 	namespace math {

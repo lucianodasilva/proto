@@ -2,6 +2,8 @@
 #include "proto.debug.h"
 #include "proto.mesh_builder.h"
 
+#include <utility>
+
 namespace proto {
 
 	size_t mesh::calc_stride (mesh_attributes attributes) {
@@ -69,20 +71,23 @@ namespace proto {
 
 	}
 
+	void mesh::swap (mesh & m) {
+		std::swap (_vertex_buffer_id, m._vertex_buffer_id);
+		std::swap (_index_buffer_id, m._index_buffer_id);
+		std::swap (_vbo_id, m._vbo_id);
+		std::swap (_is_active, m._is_active);
+	}
+
     mesh::mesh() :
 		_vertex_buffer_id (0),
 		_index_buffer_id (0),
 		_vbo_id (0),
+		_index_count (0),
 		_is_active (false)
 	{}
 
-	mesh::mesh (mesh && v) {
-		using namespace std;
-
-		swap (_vertex_buffer_id, v._vertex_buffer_id);
-		swap (_index_buffer_id, v._index_buffer_id);
-		swap (_vbo_id, v._vbo_id);
-		swap (_is_active, v._is_active);
+	mesh::mesh (mesh && v) : mesh () {
+		swap (v);
 	}
 
     mesh::~mesh() {
@@ -95,6 +100,11 @@ namespace proto {
 			glDeleteBuffers (2, &_vertex_buffer_id);
 		}
     }
+
+	mesh & mesh::operator = (mesh && v) {
+		swap (v);
+		return *this;
+	}
 
 	void mesh::bind () const {
 		gl_error_guard ("MESH BIND");

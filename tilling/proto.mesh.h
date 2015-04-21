@@ -20,6 +20,10 @@ namespace proto {
 		return ((uint32_t)v1 & (uint32_t)v2) != 0;
 	}
 
+	inline mesh_attributes operator | (mesh_attributes v1, mesh_attributes v2) {
+		return (mesh_attributes)((uint32_t)v1 | (uint32_t)v2);
+	}
+
     class mesh {
     private:
 
@@ -35,14 +39,18 @@ namespace proto {
 
 		bool _is_active;
 
-		mesh ();
-
     public:
+
+		void swap (mesh & m);
 
 		uint32_t index_count () const { return _index_count; }
 
+		mesh ();
 		mesh (mesh && v);
 		~mesh ();
+
+		mesh & operator = (mesh && m);
+
 
 		void bind () const;
 
