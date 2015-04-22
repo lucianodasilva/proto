@@ -68,7 +68,7 @@ namespace proto {
 		guard_dismiss (gv...);
 	}
 
-#	define auto_guard auto __scopeguard_##__COUNTER__ = scope_guard
+#	define auto_guard auto __scopeguard_##__COUNTER__ = proto::scope_guard
 
 }
 

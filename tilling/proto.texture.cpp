@@ -127,42 +127,42 @@ namespace proto {
 		uint32_t width, uint32_t height,
 		uint32_t div_x, uint32_t div_y,
 		color4 on_color, color4 off_color,
-		texture_wrap wrap_s = texture_wrap::clamp_to_border,
-		texture_wrap wrap_t = texture_wrap::clamp_to_border,
-		texture_filter mag_filter = texture_filter::nearest,
-		texture_filter min_filter = texture_filter::nearest
+		texture_wrap wrap_s,
+		texture_wrap wrap_t,
+		texture_filter mag_filter,
+		texture_filter min_filter
 	) {
 		
 		uint8_t on_c = color4_int::from_color (on_color);
 		uint8_t off_c = color4_int::from_color (off_color);
-
+		
 		uint32_t size = width * height;
 		
 		uint32_t * texture_data = new uint32_t[size];
-
+		
+		auto_guard ([texture_data] { delete[] texture_data; });
+		
 		uint32_t
 			ix = 0,
 			iy = 0,
 			dx = width / div_x,
 			dy = height / div_y;
 		
-		for (int i = 0; i < size; ++i) 
+		for (uint32_t i = 0; i < size; ++i) 
 		{
 			iy = i / width;
 			ix = (i - (iy * width));
-
+		
 			iy /= dy;
 			ix /= dx;
-
+		
 			if (ix % 2 ^ iy % 2) {
 				texture_data[i] = on_c;
 			} else {
 				texture_data[i] = off_c;
 			}
 		}
-
-		auto_guard ([texture_data] { delete[] texture_data; });
-
+		
 		return create (
 			reinterpret_cast < uint8_t * > (texture_data),
 			width, height, texture_format::rgba,

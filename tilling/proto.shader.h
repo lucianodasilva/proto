@@ -5,19 +5,20 @@
 
 #include <GL/glew.h>
 #include <string>
+#include <cinttypes>
 
 using namespace std;
 
 namespace proto {
 
-	enum shader_type : uint32_t {
+	enum class shader_type : uint32_t {
 		none	= GL_NONE,
 		vertex	= GL_VERTEX_SHADER,
 		pixel	= GL_FRAGMENT_SHADER
 	};
 
 #define proto_shader_source(source) \
-	#source "\n"
+	#source
 
 	class shader {
 	private:

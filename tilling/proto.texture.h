@@ -76,8 +76,8 @@ namespace proto {
 		static texture create_checkers (
 			uint32_t width, uint32_t height, 
 			uint32_t div_x, uint32_t div_y,
-			color4 on_color = { 1.F, 1.F, .0F, 1.F },
-			color4 off_color = { .0F, .0F, .0F, 1.F },
+			color4 on_color = color4 { 1.F, 1.F, .0F, 1.F },
+			color4 off_color = color4 { .0F, .0F, .0F, 1.F },
 			texture_wrap wrap_s = texture_wrap::clamp_to_border,
 			texture_wrap wrap_t = texture_wrap::clamp_to_border,
 			texture_filter mag_filter = texture_filter::nearest,

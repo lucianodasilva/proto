@@ -116,12 +116,12 @@ namespace proto {
 			&v1,
 			const struct_t <value_t>
 			&v2) {
-				struct_t <value_t> r;
+				struct_t <value_t> _r;
 
 				for (int i = 0; i < struct_t<value_t>::size; ++i)
-					r.data[i] = v1.data[i] - v2.data[i];
+					_r.data[i] = v1.data[i] - v2.data[i];
 
-				return r;
+				return _r;
 			}
 
 			template < class
@@ -132,12 +132,12 @@ namespace proto {
 			&v1,
 			const value_t
 			&v2) {
-				struct_t <value_t> r;
+				struct_t <value_t> _r;
 
 				for (int i = 0; i < struct_t<value_t>::size; ++i)
-					r.data[i] = v1.data[i] - v2;
+					_r.data[i] = v1.data[i] - v2;
 
-				return r;
+				return _r;
 			}
 
 			template < class
@@ -148,12 +148,12 @@ namespace proto {
 			&v1,
 			const struct_t <value_t>
 			&v2) {
-				struct_t <value_t> r;
+				struct_t <value_t> _r;
 
 				for (int i = 0; i < struct_t<value_t>::size; ++i)
-					r.data[i] = v1.data[i] * v2.data[i];
+					_r.data[i] = v1.data[i] * v2.data[i];
 
-				return r;
+				return _r;
 			}
 
 			template < class
@@ -164,12 +164,12 @@ namespace proto {
 			&v,
 			const value_t
 			&s) {
-				struct_t <value_t> r;
+				struct_t <value_t> _r;
 
 				for (int i = 0; i < struct_t<value_t>::size; ++i)
-					r.data[i] = v.data[i] * s;
+					_r.data[i] = v.data[i] * s;
 
-				return r;
+				return _r;
 			}
 
 			template < class
@@ -180,12 +180,12 @@ namespace proto {
 			&s,
 			const struct_t <value_t>
 			&v) {
-				struct_t <value_t> r;
+				struct_t <value_t> _r;
 
 				for (int i = 0; i < struct_t<value_t>::size; ++i)
-					r.data[i] = s * v.data[i];
+					_r.data[i] = s * v.data[i];
 
-				return r;
+				return _r;
 			}
 
 			template < class
@@ -195,12 +195,12 @@ namespace proto {
 			&v1,
 			const struct_t <value_t>
 			&v2) {
-				struct_t <value_t> r;
+				struct_t <value_t> _r;
 
 				for (int i = 0; i < struct_t<value_t>::size; ++i)
-					r.data[i] = v1.data[i] / v2.data[i];
+					_r.data[i] = v1.data[i] / v2.data[i];
 
-				return r;
+				return _r;
 			}
 
 			template < class
@@ -210,12 +210,12 @@ namespace proto {
 			&v,
 			const value_t
 			&s) {
-				struct_t <value_t> r;
+				struct_t <value_t> _r;
 
 				for (int i = 0; i < struct_t<value_t>::size; ++i)
-					r.data[i] = v.data[i] / s;
+					_r.data[i] = v.data[i] / s;
 
-				return r;
+				return _r;
 			}
 
 			template < class
@@ -225,12 +225,12 @@ namespace proto {
 			&s,
 			const struct_t <value_t>
 			&v) {
-				struct_t <value_t> r;
+				struct_t <value_t> _r;
 
 				for (int i = 0; i < struct_t<value_t>::size; ++i)
-					r.data[i] = s / v.data[i];
+					_r.data[i] = s / v.data[i];
 
-				return r;
+				return _r;
 			}
 
 			template < class
@@ -239,12 +239,12 @@ namespace proto {
 			inline struct_t <value_t> operator
 			- (const struct_t <value_t>
 			&v) {
-				struct_t <value_t> r;
+				struct_t <value_t> _r;
 
 				for (int i = 0; i < struct_t<value_t>::size; ++i)
-					r.data[i] = -v.data[i];
+					_r.data[i] = -v.data[i];
 
-				return r;
+				return _r;
 			}
 
 		}

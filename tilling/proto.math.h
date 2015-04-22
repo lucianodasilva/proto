@@ -34,12 +34,12 @@ namespace proto {
 		&v2 ) {
 			// avoid branching by avoiding zero ( floating point precision exploit )
 			// returns minimum positive number for min
-			value_t r = numeric_limits<value_t>::min();
+			value_t _r = numeric_limits<value_t>::min();
 
 			for (uint32_t i = 0; i < struct_t<value_t>::size; ++i)
-				r += v1.data[i] * v2.data[i];
+				_r += v1.data[i] * v2.data[i];
 
-			return r;
+			return _r;
 		}
 
 		template < class

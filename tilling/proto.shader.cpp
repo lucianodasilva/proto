@@ -41,7 +41,7 @@ namespace proto {
 		const char * source_ptr = source.c_str ();
 		int32_t source_length = source.size ();
 
-		new_s._shader_id = glCreateShader (type);
+		new_s._shader_id = glCreateShader ((GLenum)type);
 		new_s._type = type;
 		new_s._is_active = true;
 

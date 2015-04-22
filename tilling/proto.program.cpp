@@ -69,7 +69,11 @@ namespace proto {
 			name[name_len] = 0;
 			GLuint location = glGetUniformLocation (new_p._program_id, name);
 
-			id_t id = create_id (name);
+			// this is a memory leak ( oh well )
+			char * name_copy = new char [name_len + 1];
+			std::strcpy (name_copy, +name);
+
+			id_t id = create_id (name_copy);
 			new_p._uniforms [id] = location;
 		}
 

@@ -9,16 +9,20 @@
 
 namespace proto {
 
+	#if _MSC_VER <= 1800 
+	#define constexpr
+	#endif
+
 	namespace details {
 
 		static constexpr uint64_t hash_basis = 14695981039346656037U;
 		static constexpr uint64_t hash_prime = 1099511628211;
 
-		constexpr uint64_t hash_one (char c, const char * remain, uint64_t value) {
+		inline constexpr uint64_t hash_one (char c, const char * remain, uint64_t value) {
 			return c == 0 ? value : hash_one (remain[0], remain + 1, (value ^ c) * hash_prime);
 		}
 
-		constexpr uint64_t hash (const char * v) {
+		inline constexpr uint64_t hash (const char * v) {
 			return hash_one (v[0], v + 1, hash_basis);
 		}
 
@@ -36,9 +40,9 @@ namespace proto {
 	}
 
 
-	constexpr id_t operator "" _id (const char * v) {
-		return id_t{ (uint32_t)details::hash (v), v };
-	}
+	//constexpr id_t operator "" _id (const char * v) {
+	//	return id_t{ (uint32_t)details::hash (v), v };
+	//}
 
 	inline bool operator < (const id_t & v1, const id_t & v2) {
 		return v1.hash < v2.hash;
@@ -57,9 +61,9 @@ namespace proto {
 		return id_t { (uint32_t)details::hash (v) };
 	}
 
-	constexpr id_t operator "" _id (const char * v) {
-		return (id_t)details::hash (v);
-	}
+	//constexpr id_t operator "" _id (const char * v) {
+	//	return (id_t)details::hash (v);
+	//}
 
 #	endif
 

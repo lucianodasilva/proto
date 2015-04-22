@@ -338,6 +338,55 @@ namespace proto {
 				};
 			}
 
+			inline static this_type make_ortho ( value_t left, value_t top, value_t right, value_t bottom, value_t near_v, value_t far_v ) {
+				return {
+					value_t (2) / (right - left), value_t (0), value_t (0), value_t (0),
+					value_t (0), value_t (2) / (top - bottom), value_t (0), value_t (0),
+					value_t (0), value_t (0), value_t (1) / (far_v - near_v), value_t (0),
+					value_t (0), value_t (0), near_v / (near_v - far_v), value_t (1)
+				};
+			}
+
+			inline static this_type make_perspective ( int width, int height, value_t fovy, value_t near_v, value_t far_v) {
+
+				value_t aspect = value_t (width) / value_t (height);
+
+				value_t
+					fov_r = proto::math::radians (fovy),
+					range = tan (fov_r / value_t (2)) * near,
+					l = -range * aspect,
+					r = range * aspect,
+					b = -range,
+					t = range;
+
+				return {
+					(value_t (2) * near) / (r - l), value_t (0), value_t (0), value_t (0),
+					value_t (0), (value_t (2) * near) / (t - b), value_t (0), value_t (0),
+					value_t (0), value_t (0), -(far + near) / (far - near), value_t (-1),
+					value_t (0), value_t (0), -(value_t (2) * far * near) / (far - near), value_t (0)
+				};
+			}
+
+			inline static this_type make_look_at (
+				const details::vec3_t < value_t > & position,
+				const details::vec3_t < value_t > & up,
+				const details::vec3_t < value_t > & target
+			) {
+
+				details::vec3_t < value_t > zaxis = normalize (target - position);
+				details::vec3_t < value_t > yaxis = normalize (up);
+				details::vec3_t < value_t > xaxis = normalize (cross (zaxis, yaxis));
+
+				yaxis = cross (xaxis, zaxis);
+
+				return{
+					xaxis.x, yaxis.x, -zaxis.x, value_t (0),
+					xaxis.y, yaxis.y, -zaxis.y, value_t (0),
+					xaxis.z, yaxis.z, -zaxis.z, value_t (0),
+					-dot (xaxis, position), -dot (yaxis, position), dot (zaxis, position), value_t (1)
+				};
+			}
+
 		};
 
 		template < class
@@ -348,6 +397,7 @@ namespace proto {
 				value_t(0), value_t(0), value_t(1), value_t(0),
 				value_t(0), value_t(0), value_t(0), value_t(1)
 		};
+
 	}
 
 	using mat4 = math::mat4_t<float>;

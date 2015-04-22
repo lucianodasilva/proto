@@ -62,7 +62,7 @@ namespace proto {
 
 		void set_program (program & p);
 
-		void set_viewport (const ivec2 & top, const ivec2 & size);
+		void set_viewport (int x, int y, int width, int height);
 
 		void enable_depth ( blend_function sfactor = blend_function::src_alpha, blend_function dfactor = blend_function::one_minus_src_alpha ) const;
 		void disable_depth () const;
