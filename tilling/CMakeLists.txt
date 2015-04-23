@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.4)
+cmake_minimum_required(VERSION 3.0.0)
 
 project (tilling)
 
@@ -16,12 +16,33 @@ endif ()
 
 ###############################################
 
-set (FREEGLUT_BUILD_STATIC_LIBS ON CACHE BOOL "" FORCE)
-set (FREEGLUT_BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-set (FREEGLUT_BUILD_DEMOS OFF CACHE BOOL "" FORCE)
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+	add_definitions (-DPROTO_OS_WINDOWS)
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	add_definitions (-DPROTO_OS_LINUX)
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	add_definitions (-DPROTO_OS_DARWIN)
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Sun")
+	add_definitions (-DPROTO_OS_SUN)
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
+	add_definitions (-DPROTO_OS_FREEBSD)
+endif ()
 
-include (deps/freeglut/CMakeLists.txt)
-add_definitions(-DFREEGLUT_STATIC)
+if (UNIX)
+	add_definitions (-DPROTO_API_UNIX)
+elseif (WIN32)
+	add_definitions (-DPROTO_API_WIN32)
+endif ()
+
+if (${CMAKE_CXX_COMPILER_ID} MATCHES "MSVC")
+	add_definitions (-DPROTO_COMPILER_MSVC)
+elseif (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+	add_definitions (-DPROTO_COMPILER_CLANG)
+elseif (${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
+	add_definitions (-DPROTO_COMPILER_GNU)
+elseif (${CMAKE_CXX_COMPILER_ID} MATCHES "SunPro")
+	add_definitions (-DPROTO_COMPILER_SUNPRO)
+endif ()
 
 ###############################################
 
@@ -34,10 +55,12 @@ project(tilling)
 
 file ( GLOB SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/*.cpp
+${CMAKE_CURRENT_LIST_DIR}/*.mm
 )
 
 file ( GLOB HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/*.h
+${CMAKE_CURRENT_LIST_DIR}/*.hpp
 )
 
 find_package(OpenGL REQUIRED)
@@ -45,5 +68,5 @@ include_directories(${OPENGL_INCLUDE_DIR})
 set(ADDITIONAL_LIBRARIES ${OPENGL_LIBRARIES})
 
 add_executable(tilling ${SOURCE_FILES} ${HEADER_FILES})
-target_link_libraries(tilling ${ADDITIONAL_LIBRARIES} glew freeglut_static)
+target_link_libraries(tilling ${ADDITIONAL_LIBRARIES} glew)
 

@@ -6,7 +6,6 @@
 #include "proto.debug.h"
 
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 
 namespace proto {
 
@@ -72,7 +71,6 @@ namespace proto {
 
     void renderer::present() {
 		gl_error_guard ("RENDERER PRESENT");
-		glutSwapBuffers ();
     }
 
 }

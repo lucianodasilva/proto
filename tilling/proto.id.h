@@ -9,10 +9,6 @@
 
 namespace proto {
 
-	#if _MSC_VER <= 1800 
-	#define constexpr
-	#endif
-
 	namespace details {
 
 		static constexpr uint64_t hash_basis = 14695981039346656037U;

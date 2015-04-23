@@ -1,6 +1,5 @@
 
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 
 #include "proto.details.h"
 #include "proto.debug.h"
@@ -104,7 +103,7 @@ void render_callback () {
 }
 
 void update_callback () {
-	glutPostRedisplay ();
+	//glutPostRedisplay ();
 }
 
 void close_callback () {
@@ -113,17 +112,17 @@ void close_callback () {
 
 int main(int arg_c, char * arg_v[]) {
 
-	glutInit (&arg_c, arg_v);
+	//glutInit (&arg_c, arg_v);
 
-    glutInitWindowPosition (-1, -1);
-    glutInitWindowSize (600, 600);
+    //glutInitWindowPosition (-1, -1);
+    //glutInitWindowSize (600, 600);
 
-    glutInitDisplayMode (GLUT_RGBA);
+    //glutInitDisplayMode (GLUT_RGBA);
 
-    glutCreateWindow ("Tilling Demo");
-	glutDisplayFunc (&render_callback);
-	glutIdleFunc (&update_callback);
-	glutCloseFunc (&close_callback);
+    //glutCreateWindow ("Tilling Demo");
+	//glutDisplayFunc (&render_callback);
+	//glutIdleFunc (&update_callback);
+	//glutCloseFunc (&close_callback);
 
 	// load graphics
 	GLenum err = glewInit ();
@@ -140,7 +139,7 @@ int main(int arg_c, char * arg_v[]) {
 
 	load_stuffs ();
 
-    glutMainLoop();
+    //glutMainLoop();
 
     return 0;
 }
