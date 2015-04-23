@@ -8,8 +8,8 @@
 
 namespace proto {
 
-	const DWORD window_style = WS_OVERLAPPEDWINDOW;
-	const BOOL	window_menu = FALSE;
+	const LPCSTR	window_class_name	= "PROTOWNDCLASS";
+	const DWORD		window_style		= WS_OVERLAPPEDWINDOW;
 
 	class window_imp {
 	public:
@@ -84,7 +84,7 @@ namespace proto {
 		if (!_implement)
 			return;
 
-		while (controller->update ()) {
+		while (true) {
 			MSG msg = {};
 			while (PeekMessage (&msg, _implement->handle, 0, 0, PM_REMOVE) > 0) {
 				::TranslateMessage (&msg);
@@ -96,25 +96,24 @@ namespace proto {
 	}
 
 	LRESULT CALLBACK windows_message_callback (HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-		return 0;
+		return DefWindowProc (hWnd, msg, wParam, lParam);
 	}
 
 	window window::create (const char * title, const point & size_v) {
 
 		auto hinst = ::GetModuleHandle (NULL);
 
-		const char * class_name = "PROTO_WND_CLASS";
-		WNDCLASS wc = { 0 };
-		wc.style = CS_HREDRAW | CS_VREDRAW;
-		wc.lpfnWndProc = windows_message_callback;
-		wc.cbClsExtra = 0;
-		wc.cbWndExtra = 0;
-		wc.hInstance = hinst;
-		wc.hIcon = LoadIcon (0, IDI_APPLICATION);
-		wc.hCursor = LoadCursor (0, IDC_ARROW);
-		wc.hbrBackground = (HBRUSH)GetStockObject (WHITE_BRUSH);
-		wc.lpszMenuName = 0;
-		wc.lpszClassName = class_name;
+		WNDCLASS wc;
+		wc.style			= CS_HREDRAW | CS_VREDRAW;
+		wc.lpfnWndProc		= windows_message_callback;
+		wc.cbClsExtra		= 0;
+		wc.cbWndExtra		= 0;
+		wc.hInstance		= hinst;
+		wc.hIcon			= LoadIcon (0, IDI_APPLICATION);
+		wc.hCursor			= LoadCursor (0, IDC_ARROW);
+		wc.hbrBackground	= (HBRUSH)GetStockObject (WHITE_BRUSH);
+		wc.lpszMenuName		= 0;
+		wc.lpszClassName	= window_class_name;
 
 		if (!::RegisterClass (&wc)) {
 			debug_print << "window class registry failed";
@@ -124,14 +123,14 @@ namespace proto {
 		auto imp = std::make_shared < window_imp > ();
 
 		imp->handle = ::CreateWindow (
-			class_name,
+			window_class_name,
 			title,
 			window_style,
 			CW_USEDEFAULT,
 			CW_USEDEFAULT,
 			size_v.x,
 			size_v.y,
-			window_menu,
+			0,
 			0,
 			hinst,
 			0 // can be window instance

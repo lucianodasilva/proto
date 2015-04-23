@@ -4,6 +4,7 @@
 #include "proto.details.h"
 #include "proto.debug.h"
 #include "proto.renderer.h"
+#include "proto.window.h"
 
 proto::renderer r;
 
@@ -124,6 +125,9 @@ int main(int arg_c, char * arg_v[]) {
 	//glutIdleFunc (&update_callback);
 	//glutCloseFunc (&close_callback);
 
+	auto w = proto::window::create ("Tilling Proto", { 512, 512 });
+	w.show ();
+
 	// load graphics
 	GLenum err = glewInit ();
 
@@ -139,7 +143,7 @@ int main(int arg_c, char * arg_v[]) {
 
 	load_stuffs ();
 
-    //glutMainLoop();
+	w.do_event_loop (nullptr);
 
     return 0;
 }
