@@ -80,7 +80,7 @@ namespace proto {
 		}
 	}
 
-	void window::do_event_loop (window_controller * controller) {
+	void window::do_event_loop () {
 		if (!_implement)
 			return;
 
@@ -133,7 +133,7 @@ namespace proto {
 			0,
 			0,
 			hinst,
-			0 // can be window instance
+			imp.get () // can be window instance
 		);
 
 		if (!imp->handle) {

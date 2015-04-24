@@ -143,7 +143,7 @@ int main(int arg_c, char * arg_v[]) {
 
 	load_stuffs ();
 
-	w.do_event_loop (nullptr);
+	w.do_event_loop ();
 
     return 0;
 }
