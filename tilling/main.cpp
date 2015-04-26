@@ -72,13 +72,13 @@ void load_stuffs () {
 	demo_tex = proto::texture::create_checkers (32, 32, 4, 4);
 
 	model		= proto::mat4::identity;
-	view		= proto::mat4::make_look_at (
+	view		= proto::math::make_look_at (
 		proto::vec3 { .0, .0, -1. }, 
 		proto::vec3 { .0, 1., .0 }, 
 		proto::vec3 { .0, .0, .0 }
 	);
 
-	projection  = proto::mat4::make_ortho (-1.0F, 1.0F, 1.0F, -1.0F, .0F, 100.0F);
+	projection  = proto::math::make_ortho (-1.0F, 1.0F, 1.0F, -1.0F, .0F, 100.0F);
 
 	r.set_viewport (0, 0, 100, 100);
 }
