@@ -133,8 +133,8 @@ namespace proto {
 		texture_filter min_filter
 	) {
 		
-		uint8_t on_c = color4_int::from_color (on_color);
-		uint8_t off_c = color4_int::from_color (off_color);
+		uint32_t on_c = color4_int::from_color (on_color);
+		uint32_t off_c = color4_int::from_color (off_color);
 		
 		uint32_t size = width * height;
 		

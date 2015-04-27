@@ -3,6 +3,7 @@
 
 #include "proto.details.h"
 #include "proto.debug.h"
+#include "proto.mesh_builder.h"
 #include "proto.renderer.h"
 #include "proto.window.h"
 
@@ -69,7 +70,20 @@ void load_stuffs () {
 
 	prog = proto::program::link (vs, ps);
 
-	quad = proto::mesh::create_quad (1.0F, proto::vec3{ .0F, .0F, -1.F });
+	//quad = proto::mesh::create_quad (1.0F, proto::vec3{ .0F, .0F, -1.F });
+
+	proto::mesh_builder builder;
+
+	uint16_t
+		i1 = builder.add_element ({ {-.5F, -.5F, .0F}, {.0F, .0F}, { .0F, .0F, -1.F} }),
+		i2 = builder.add_element ({ { .5F, -.5F, .0F },{ 1.F, .0F },{ .0F, .0F, -1.F } }),
+		i3 = builder.add_element ({ { -.5F, .5F, .0F },{ .0F, 1.F },{ .0F, .0F, -1.F } }),
+		i4 = builder.add_element ({ { .5F, .5F, .0F },{ 1.F, 1.F },{ .0F, .0F, -1.F } });
+
+	builder.add_face ({ i1, i2, i3 });
+	builder.add_face ({ i2, i4, i3 });
+
+	quad = builder.make_mesh ();
 
 	demo_tex = proto::texture::create_checkers (32, 32, 4, 4);
 
@@ -82,7 +96,7 @@ void load_stuffs () {
 
 	projection  = proto::math::make_ortho (-1.0F, 1.0F, 1.0F, -1.0F, .0F, 100.0F);
 
-	r.set_viewport (0, 0, 100, 100);
+	//r.set_viewport (0, 0, 512, 512);
 }
 
 void render_callback () {
@@ -120,18 +134,6 @@ void close_callback () {
 
 int main(int arg_c, char * arg_v[]) {
 
-	//glutInit (&arg_c, arg_v);
-
-    //glutInitWindowPosition (-1, -1);
-    //glutInitWindowSize (600, 600);
-
-    //glutInitDisplayMode (GLUT_RGBA);
-
-    //glutCreateWindow ("Tilling Demo");
-	//glutDisplayFunc (&render_callback);
-	//glutIdleFunc (&update_callback);
-	//glutCloseFunc (&close_callback);
-
 	auto w = proto::window::create ("Tilling Proto", { 512, 512 });
 	w->on_window_close += on_window_close;
 	w->show ();
@@ -150,7 +152,6 @@ int main(int arg_c, char * arg_v[]) {
 	glCullFace	(GL_BACK);
 
 	load_stuffs ();
-
 
 	w->do_event_loop (update_callback, render_callback);
 
