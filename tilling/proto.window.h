@@ -8,6 +8,8 @@
 #include "proto.details.h"
 #include "proto.math.h"
 
+using namespace std;
+
 namespace proto {
 
 	class window;
@@ -16,27 +18,36 @@ namespace proto {
 	using window_event = event < window, _argv_tv ... >;
 
 	enum class mouse_buttons {
+		none,
 		left,
 		middle,
 		right
 	};
 
+	inline mouse_buttons operator | (mouse_buttons m1, mouse_buttons m2) {
+		return (mouse_buttons)((size_t)m1 | (size_t)m2);
+	}
+
+	inline bool operator & (mouse_buttons m1, mouse_buttons m2) {
+		return ((size_t)m1 & (size_t)m2) != 0;
+	}
+
 	struct mouse_down_event_args {
-		uint32_t x, y;
+		point location;
 		mouse_buttons button;
 	};
 
 	using mouse_down_event = window_event < mouse_down_event_args >;
 
 	struct mouse_up_event_args {
-		uint32_t x, y;
+		point location;
 		mouse_buttons button;
 	};
 
 	using mouse_up_event = window_event < mouse_up_event_args >;
 
 	struct mouse_move_event_args {
-		uint32_t x, y;
+		point location;
 	};
 
 	using mouse_move_event = window_event < mouse_move_event_args >;
@@ -45,7 +56,8 @@ namespace proto {
 	class window {
 	private:
 
-		std::shared_ptr < class window_imp > _implement;
+		unique_ptr < class window_imp > _implement;
+		window ();
 
 	public:
 
@@ -54,14 +66,7 @@ namespace proto {
 		mouse_move_event	on_mouse_move;
 		window_close_event	on_window_close;
 
-		void swap (window & w);
-
-		window ();
-		window (window && w);
-
 		~window ();
-
-		window & operator = (window && w);
 
 		void show () const;
 		void hide () const;
@@ -69,9 +74,12 @@ namespace proto {
 		point size () const;
 		void size (const point & p);
 
-		void do_event_loop ();
+		void do_event_loop (
+			function < bool () > update_callback,
+			function < void () > render_callback
+		);
 
-		static window create (const char * title, const point & size_v);
+		static shared_ptr < window > create (const char * title, const point & size_v);
 
 	};
 

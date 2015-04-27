@@ -17,11 +17,11 @@ namespace proto {
 	};
 
 	inline bool operator & (mesh_attributes v1, mesh_attributes v2) {
-		return ((uint32_t)v1 & (uint32_t)v2) != 0;
+		return ((size_t)v1 & (size_t)v2) != 0;
 	}
 
 	inline mesh_attributes operator | (mesh_attributes v1, mesh_attributes v2) {
-		return (mesh_attributes)((uint32_t)v1 | (uint32_t)v2);
+		return (mesh_attributes)((size_t)v1 | (size_t)v2);
 	}
 
     class mesh {

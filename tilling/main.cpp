@@ -17,6 +17,8 @@ proto::mat4
 	view,
 	projection;
 
+bool running = true;
+
 void load_stuffs () {
 
 	const char * vertex_source = proto_shader_source (
@@ -103,7 +105,12 @@ void render_callback () {
 	r.present ();
 }
 
-void update_callback () {
+void on_window_close ( proto::window & sender ) {
+	running = false;
+}
+
+bool update_callback () {
+	return running;
 	//glutPostRedisplay ();
 }
 
@@ -126,7 +133,8 @@ int main(int arg_c, char * arg_v[]) {
 	//glutCloseFunc (&close_callback);
 
 	auto w = proto::window::create ("Tilling Proto", { 512, 512 });
-	w.show ();
+	w->on_window_close += on_window_close;
+	w->show ();
 
 	// load graphics
 	GLenum err = glewInit ();
@@ -143,7 +151,8 @@ int main(int arg_c, char * arg_v[]) {
 
 	load_stuffs ();
 
-	w.do_event_loop ();
+
+	w->do_event_loop (update_callback, render_callback);
 
     return 0;
 }

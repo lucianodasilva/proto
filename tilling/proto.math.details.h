@@ -67,11 +67,8 @@ namespace proto {
 			};
 		}
 
-		template < class
-		_t, template < class > class
-		_struct_t >
-		inline _struct_t <_t> normalize(const _struct_t <_t>
-		&v ) {
+		template < class _t, template < class > class _struct_t >
+		inline _struct_t <_t> normalize(const _struct_t <_t> &v ) {
 			_t norm = _t(1) / length<_t, _struct_t>(v);
 			return v * norm;
 		}
