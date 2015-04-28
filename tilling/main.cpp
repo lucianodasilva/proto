@@ -153,7 +153,7 @@ int main(int arg_c, char * arg_v[]) {
 
 	load_stuffs ();
 
-	w->do_event_loop (update_callback, render_callback);
+	
 
     return 0;
 }

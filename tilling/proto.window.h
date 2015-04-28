@@ -7,6 +7,7 @@
 
 #include "proto.details.h"
 #include "proto.math.h"
+#include "proto.renderer.h"
 
 using namespace std;
 
@@ -53,10 +54,14 @@ namespace proto {
 	using mouse_move_event = window_event < mouse_move_event_args >;
 	using window_close_event = window_event < void >;
 
+	using window_render = window_event < renderer >;
+	using window_update = window_event < void >;
+
 	class window {
 	private:
 
 		unique_ptr < class window_imp > _implement;
+		renderer						_renderer;
 		window ();
 
 	public:
@@ -64,6 +69,9 @@ namespace proto {
 		mouse_down_event	on_mouse_down;
 		mouse_up_event		on_mouse_up;
 		mouse_move_event	on_mouse_move;
+
+		window_render		on_window_render;
+		window_update		on_window_update;
 		window_close_event	on_window_close;
 
 		~window ();
@@ -71,13 +79,20 @@ namespace proto {
 		void show () const;
 		void hide () const;
 
+		void close ();
+
+		bool is_visible () const;
+		bool is_closed () const;
+
 		point size () const;
 		void size (const point & p);
 
-		void do_event_loop (
-			function < bool () > update_callback,
-			function < void () > render_callback
-		);
+
+		inline renderer & renderer () { return _renderer; }
+
+		void *	native_handle () const;
+		void *	native_device () const;
+		void	make_active ();
 
 		static shared_ptr < window > create (const char * title, const point & size_v);
 
