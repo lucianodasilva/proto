@@ -57,7 +57,6 @@ namespace proto {
 	void window::close () {
 		if (_implement) {
 			_implement.release ();
-			window_manager::instance ().remove_window (this);
 		}
 	}
 
@@ -171,7 +170,7 @@ namespace proto {
 			return nullptr;
 		}
 
-		window_manager::instance ().add_window (inst);
+		window_manager::instance ().register_window (inst);
 		return inst;
 	}
 

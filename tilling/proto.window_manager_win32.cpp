@@ -121,10 +121,24 @@ namespace proto {
 	void window_manager::main_loop () {
 		window_manager & manager = instance ();
 
+		vector < vector < shared_ptr < window > >::iterator >
+			death_row;
+
 		while (manager._windows.size ()) {
 
 			MSG msg = {};
-			for (auto & w_ptr : manager._windows) {
+			for (
+				auto w_it = manager._windows.begin ();
+				w_it != manager._windows.end ();
+				++w_it
+			) {
+
+				auto & w_ptr = *w_it;
+
+				if (w_ptr->is_closed ()) {
+					death_row.push_back (w_it);
+					continue;
+				}
 
 				while (PeekMessage (&msg, (HWND)w_ptr->native_handle (), 0, 0, PM_REMOVE) > 0) {
 					::TranslateMessage (&msg);
@@ -142,44 +156,27 @@ namespace proto {
 			}
 
 			{
-				lock_guard < mutex > l (manager._accessory_mutex);
-
-				for (auto & w_it : manager._windows) {
-					if (w_it->is_closed ())
-						manager._old.push_back (w_it.get ());
+				for (auto & win_it : death_row) {
+					manager._windows.erase (win_it);
 				}
 
-				for (auto & w_it : manager._old) {
-					auto it = std::find (
-						manager._windows.begin (),
-						manager._windows.end (),
-						w_it
-					);
+				death_row.clear ();
 
-					if (it != manager._windows.end ()) {
-						manager._windows.erase (it);
-					}
-				}
+				lock_guard < mutex > new_lock (manager._new_mutex);
 
 				for (auto & w_it : manager._new) {
 					manager._windows.push_back (w_it);
 				}
 
 				manager._new.clear ();
-				manager._old.clear ();
 			}
 
 		}
 	}
 
-	void window_manager::add_window (const shared_ptr < window > & w) {
-		lock_guard < mutex > lock (_accessory_mutex);
+	void window_manager::register_window (const shared_ptr < window > & w) {
+		lock_guard < mutex > lock (_new_mutex);
 		_new.emplace_back (w);
-	}
-
-	void window_manager::remove_window (window * w) {
-		lock_guard < mutex > lock (_accessory_mutex);
-		_old.push_back (w);
 	}
 
 }

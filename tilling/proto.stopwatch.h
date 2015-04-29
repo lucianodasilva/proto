@@ -3,6 +3,7 @@
 #define _proto_stopwatch_h_
 
 #include <chrono>
+#include <functional>
 
 namespace proto {
 	namespace stopwatch {
@@ -13,82 +14,87 @@ namespace proto {
 
 		/* returns a double representation of the elapsed seconds between both time points */
 		inline static double time_elapsed(
-				const time_point
-		&start,
-		const time_point
-		&end
+				const time_point & start,
+				const time_point & end
 		);
 
 		/* returns a double representation of the elapsed seconds between the starting point until the calling time */
-		inline static double time_stop(const time_point
-		&start);
+		inline static double time_stop(const time_point & start);
 
-		template < typename ...
-		args_t >
-		struct _timed_function_call {
-
-			inline _timed_function_call(void(*func_address)(args_t ...)) :
-					function_address(func_address) { }
-
-			inline _timed_function_call(const _timed_function_call<args_t ...>
-
-			& v)
-			:
-			function_address(v
-			.function_address) { }
-
-			void(*function_address)(args_t ...);
-
-			inline double operator()(args_t ... arg) {
-				time_point start = time_now();
-				function_address(arg...);
-				return time_stop(start);
-			}
-
+		enum class call_result_type {
+			average,
+			total
 		};
 
-		template < typename ...
-		args_t >
-		struct _average_timed_function_call : public _timed_function_call<args_t...> {
+		namespace details {
 
-			inline _average_timed_function_call(uint32_t calls, void(*func_address)(args_t ...)) :
-					call_count(calls),
-					_timed_function_call<args_t ...>(func_address) { }
+			template < class _rt, class ... _args_tv >
+			struct timed_function_call {
 
-			inline _average_timed_function_call(const _average_timed_function_call<args_t...>
+				using func_t = std::function < _rt (_args_tv ...) >;
 
-			& v) :
-			call_count(v
-			.call_count),
-			_timed_function_call<args_t ...>(v
-			.function_address) { }
+				func_t function;
 
-			uint32_t call_count;
+				inline timed_function_call (func_t function) :
+					function (function) { }
 
-			inline double operator()(args_t ... arg) {
-				double time_sum = 0.0;
-				for (uint32_t i = 0; i < call_count; ++i)
-					time_sum += _timed_function_call < args_t... >::operator()(arg...);
+				inline timed_function_call (const timed_function_call & v) :
+					function (v.function) { }
 
-				return time_sum /
-				double(call_count);
-			}
+				inline double operator()(_args_tv ... args) {
+					time_point start = time_now ();
+					function (args...);
+					return time_stop (start);
+				}
 
-		};
+			};
 
-		template < typename ...
-		args_t >
-		_timed_function_call < args_t ... > timed_call(
-		void(*function_address)(args_t ...)) {
-			return _timed_function_call < args_t ... > { function_address };
+			template < class _rt, class ... _args_tv >
+			struct multiple_timed_function_call : public timed_function_call < _rt, _args_tv > {
+
+				uint64_t call_count;
+
+				inline multiple_timed_function_call (uint32_t call_count_v, timed_function_call < _rt, _args_tv >::func_t function) :
+					timed_function_call < _rt, _args_tv > (function),
+					call_count (calls)
+				{}
+
+				inline multiple_timed_function_call (const multiple_timed_function_call & v) :
+					function (v.function),
+					call_count (v.call_count)
+				{ }
+
+				inline double operator()(call_result_type result, _args_tv ... args) {
+					time_point start = time_now ();
+
+					double time_sum = 0.0;
+					for (uint32_t i = 0; i < call_count; ++i)
+						timed_function_call < _rt, _args_tv ... >::function (args ...);
+
+					time_sum = time_stop (start);
+
+					if (result == call_result_type::total)
+						return time_sum;
+					else if (result == call_result_type::average)
+						return time_sum / double (call_count);
+				}
+
+			};
+
 		}
 
-		template < typename ...
-		args_t >
-		_average_timed_function_call < args_t ... > timed_avg_call(uint32_t
-		call_count,
-		void(*function_address)(args_t ...)) {
-			return _average_timed_function_call < args_t ... >(call_count, function_address);
+		template < class _rt, class ... _args_tv >
+		inline details::timed_function_call < _rt, _args_tv > timed_call (
+			details::timed_function_call < _rt, _args_tv >::func_t f
+		) {
+			return details::timed_function_call < _rt, _args_tv > ( f );
+		}
+
+		template < class _rt, class ... _args_tv >
+		inline details::multiple_timed_function_call < _rt, _args_tv > multiple_timed_call (
+			details::multiple_timed_function_call < _rt, _args_tv >::func_t f
+		) {
+			return details::multiple_timed_function_call < _rt, _args_tv > ( f );
 		}
 
 		inline static time_point time_now() {
@@ -96,25 +102,23 @@ namespace proto {
 		}
 
 		inline static double time_elapsed_now(
-				const time_point
-		&start
+				const time_point & start
 		) {
 			return std::chrono::duration_cast<std::chrono::milliseconds>(time_now() - start).count() / 1000.0;
 		}
 
 		/* returns a double representation of the elapsed seconds between both time points */
-		inline static double time_elapsed(
-				const time_point
-		&start,
-		const time_point
-		&end
+		inline static double time_elapsed ( 
+			const time_point & start,
+			const time_point & end
 		) {
 			return std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000.0;
 		}
 
 		/* returns a double representation of the elapsed seconds between the starting point until the calling time */
-		inline static double time_stop(const time_point
-		&start) {
+		inline static double time_stop(
+			const time_point & start
+		) {
 			return time_elapsed(start, time_now());
 		}
 

@@ -22,9 +22,8 @@ namespace proto {
 
 		vector < shared_ptr < window > >	_windows;
 
-		mutex								_accessory_mutex;
+		mutex								_new_mutex;
 		vector < shared_ptr < window > >	_new;
-		vector < window * >					_old;
 
 		window_manager ();
 
@@ -36,9 +35,7 @@ namespace proto {
 		static window_manager & instance ();
 		static void main_loop ();
 
-		void add_window (const shared_ptr < window > & w);
-
-		void remove_window ( window * w);
+		void register_window (const shared_ptr < window > & w);
 
 	};
 
