@@ -39,6 +39,10 @@ namespace proto {
 
 	};
 
+	inline void main_loop () {
+		window_manager::instance ().main_loop ();
+	}
+
 }
 
 #endif

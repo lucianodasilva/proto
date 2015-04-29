@@ -54,8 +54,8 @@ namespace proto {
 	using mouse_move_event = window_event < mouse_move_event_args >;
 	using window_close_event = window_event < void >;
 
-	using window_render = window_event < renderer >;
-	using window_update = window_event < void >;
+	using window_render_event = window_event < renderer >;
+	using window_update_event = window_event < void >;
 
 	class window {
 	private:
@@ -70,8 +70,8 @@ namespace proto {
 		mouse_up_event		on_mouse_up;
 		mouse_move_event	on_mouse_move;
 
-		window_render		on_window_render;
-		window_update		on_window_update;
+		window_render_event	on_window_render;
+		window_update_event	on_window_update;
 		window_close_event	on_window_close;
 
 		~window ();

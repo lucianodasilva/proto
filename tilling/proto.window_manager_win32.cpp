@@ -124,7 +124,7 @@ namespace proto {
 		vector < vector < shared_ptr < window > >::iterator >
 			death_row;
 
-		while (manager._windows.size ()) {
+		do {
 
 			MSG msg = {};
 			for (
@@ -170,8 +170,7 @@ namespace proto {
 
 				manager._new.clear ();
 			}
-
-		}
+		} while (manager._windows.size ());
 	}
 
 	void window_manager::register_window (const shared_ptr < window > & w) {

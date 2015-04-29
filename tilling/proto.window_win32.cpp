@@ -94,7 +94,8 @@ namespace proto {
 
 		auto hinst = ::GetModuleHandle (NULL);
 
-		WNDCLASS wc;
+		WNDCLASSEX wc;
+		wc.cbSize			= sizeof (WNDCLASSEX);
 		wc.style			= CS_HREDRAW | CS_VREDRAW;
 		wc.lpfnWndProc		= windows_message_callback;
 		wc.cbClsExtra		= 0;
@@ -105,8 +106,12 @@ namespace proto {
 		wc.hbrBackground	= (HBRUSH)GetStockObject (WHITE_BRUSH);
 		wc.lpszMenuName		= 0;
 		wc.lpszClassName	= window_class_name;
+		wc.hIconSm = NULL;
 
-		if (!::RegisterClass (&wc)) {
+		auto class_reg = ::RegisterClassEx (&wc);
+		auto err_reg = ::GetLastError ();
+
+		if (!class_reg && (err_reg != ERROR_CLASS_ALREADY_EXISTS)) {
 			debug_print << "window class registry failed";
 			return nullptr;
 		}
@@ -171,15 +176,27 @@ namespace proto {
 		}
 
 		window_manager::instance ().register_window (inst);
+
+		// respond to operating system close
+		inst->on_window_close += [](window & sender) {
+			sender.close ();
+		};
+
 		return inst;
 	}
 
 	void *  window::native_handle () const {
-		return _implement->handle;
+		if (_implement)
+			return _implement->handle;
+
+		return nullptr;
 	}
 
 	void * window::native_device () const {
-		return _implement->dc;
+		if (_implement)
+			return _implement->dc;
+		
+		return nullptr;
 	}
 
 	void window::make_active () {

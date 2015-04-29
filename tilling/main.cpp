@@ -6,8 +6,9 @@
 #include "proto.mesh_builder.h"
 #include "proto.renderer.h"
 #include "proto.window.h"
+#include "proto.window_manager.h"
 
-proto::renderer r;
+//proto::renderer r;
 
 proto::mesh quad;
 proto::program prog;
@@ -17,8 +18,6 @@ proto::mat4
 	model,
 	view,
 	projection;
-
-bool running = true;
 
 void load_stuffs () {
 
@@ -99,7 +98,7 @@ void load_stuffs () {
 	//r.set_viewport (0, 0, 512, 512);
 }
 
-void render_callback () {
+void on_window_render ( proto::window & w, proto::renderer & r ) {
 	r.clear ({ .0F, .2F, .3F }, proto::clear_mask::color | proto::clear_mask::depth);
 
 	r.set_program (prog);
@@ -119,13 +118,12 @@ void render_callback () {
 	r.present ();
 }
 
-void on_window_close ( proto::window & sender ) {
-	running = false;
+void on_window_update (proto::window & sender) {
+
 }
 
-bool update_callback () {
-	return running;
-	//glutPostRedisplay ();
+void on_window_close ( proto::window & sender ) {
+
 }
 
 void close_callback () {
@@ -135,15 +133,22 @@ void close_callback () {
 int main(int arg_c, char * arg_v[]) {
 
 	auto w = proto::window::create ("Tilling Proto", { 512, 512 });
+
+	w->on_window_render += on_window_render;
+	w->on_window_update += on_window_update;
 	w->on_window_close += on_window_close;
+
+	w->make_active (); // this should not be called, needed for glew
 	w->show ();
 
 	// load graphics
+	// glew init should be automatic somewhere within proto
 	GLenum err = glewInit ();
 
 	if (GLEW_OK != err) {
 		/* Problem: glewInit failed, something is seriously wrong. */
 		fprintf (stderr, "Error: %s\n", glewGetErrorString (err));
+		return err;
 	}
 
 	glDisable	(GL_DEPTH_TEST);
@@ -153,7 +158,7 @@ int main(int arg_c, char * arg_v[]) {
 
 	load_stuffs ();
 
-	
+	proto::main_loop ();
 
     return 0;
 }
