@@ -1,16 +1,64 @@
 #ifdef PROTO_OS_DARWIN
 
-#include "ballistic.input_listener.h"
-#include "ballistic.osx_frontend.h"
-#import "ballistic.osx_frontend_native.h"
+#include "proto.window_manager.h"
+#include "proto.window.h"
+
 #import <OpenGL/gl.h>
 
-@implementation ballistic_opengl_view
+#import <Foundation/Foundation.h>
+#import <Foundation/NSObject.h>
+#import <Cocoa/Cocoa.h>
+
+namespace proto {
+	
+	window_manager::window_manager (){}
+	
+	window_manager & window_manager::instance () {
+		static window_manager manager;
+		return manager;
+	}
+	
+	void window_manager::main_loop () {}
+	
+}
+
+/*
+@class NSNotification;
+
+@interface proto_opengl_view : NSOpenGLView
+{
+	CVDisplayLinkRef
+	_displayLink;
+	
+	proto::window_controller *
+	_controller_instance;
+	
+	proto::details::window_osx_native *
+	_window_instance;
+}
+
+-(id)initWithGame
+:(NSRect)frameRect
+:(proto::window_controller *) controller_instance
+:(proto::details::window_osx_native *)window_instance;
+
+-(BOOL)acceptsFirstResponder;
+
+-(void)viewDidMoveToWindow;
+
+// mouse events
+-(void)mouseDown:(NSEvent *) event;
+-(void)mouseUp:(NSEvent *) event;
+-(void)mouseMoved:(NSEvent *) event;
+
+@end
+
+@implementation proto_opengl_view
 
 // This is the renderer output callback function
 static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp* now, const CVTimeStamp* outputTime, CVOptionFlags flagsIn, CVOptionFlags* flagsOut, void* displayLinkContext)
 {
-	CVReturn result = [(__bridge ballistic_opengl_view*)displayLinkContext getFrameForTime:outputTime];
+	CVReturn result = [(__bridge proto_opengl_view*)displayLinkContext getFrameForTime:outputTime];
 	return result;
 }
 
@@ -57,8 +105,7 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 
 -(id)initWithGame
 	:(NSRect)frameRect
-	:(ballistic::game *) game_instance
-	:(ballistic::osx_desktop::frontend *)frontend_instance
+	:(proto::osx_desktop::frontend *)frontend_instance
 {
 	
 	// Create pixel format
@@ -88,27 +135,27 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 -(void)mouseDown:(NSEvent *) event {
 	NSPoint mouse_position = [NSEvent mouseLocation];
 	
-	ballistic::point position = {
+	proto::point position = {
 		(int32_t)mouse_position.x,
 		(int32_t)mouse_position.y
 	};
 	
 	NSUInteger ns_button = [NSEvent pressedMouseButtons];
-	ballistic::mouse_buttons buttons =
+	proto::mouse_buttons buttons =
 		_frontend_instance->input ()->pressed_mouse_buttons ();
 	
 	switch (ns_button) {
 		case (0):
-			buttons = flags_add (buttons, ballistic::mouse_buttons::left);
+			buttons = flags_add (buttons, proto::mouse_buttons::left);
 			break;
 		case (1):
-			buttons = flags_add (buttons, ballistic::mouse_buttons::right);
+			buttons = flags_add (buttons, proto::mouse_buttons::right);
 			break;
 		case (2):
-			buttons = flags_add (buttons, ballistic::mouse_buttons::middle);
+			buttons = flags_add (buttons, proto::mouse_buttons::middle);
 			break;
 		default:
-			buttons = flags_add (buttons, ballistic::mouse_buttons::none);
+			buttons = flags_add (buttons, proto::mouse_buttons::none);
 			break;
 	}
 	
@@ -121,27 +168,27 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 -(void)mouseUp:(NSEvent *) event {
 	NSPoint mouse_position = [NSEvent mouseLocation];
 	
-	ballistic::point position = {
+	proto::point position = {
 		(int32_t)mouse_position.x,
 		(int32_t)mouse_position.y
 	};
 	
 	NSUInteger ns_button = [NSEvent pressedMouseButtons];
-	ballistic::mouse_buttons buttons =
+	proto::mouse_buttons buttons =
 		_frontend_instance->input ()->pressed_mouse_buttons ();
 	
 	switch (ns_button) {
 		case (0):
-			buttons = flags_del (buttons, ballistic::mouse_buttons::left);
+			buttons = flags_del (buttons, proto::mouse_buttons::left);
 			break;
 		case (1):
-			buttons = flags_del (buttons, ballistic::mouse_buttons::right);
+			buttons = flags_del (buttons, proto::mouse_buttons::right);
 			break;
 		case (2):
-			buttons = flags_del (buttons, ballistic::mouse_buttons::middle);
+			buttons = flags_del (buttons, proto::mouse_buttons::middle);
 			break;
 		default:
-			buttons = flags_del (buttons, ballistic::mouse_buttons::none);
+			buttons = flags_del (buttons, proto::mouse_buttons::none);
 			break;
 	}
 	
@@ -154,7 +201,7 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 -(void)mouseMoved:(NSEvent *) event {
 	NSPoint mouse_position = [NSEvent mouseLocation];
 	
-	ballistic::point position = {
+	proto::point position = {
 		(int32_t)mouse_position.x,
 		(int32_t)mouse_position.y
 	};
@@ -176,14 +223,38 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 
 @end
 
-@implementation ballistic_window_controller
+@interface proto_window_controller : NSResponder < proto_window_interface_protocol, NSWindowDelegate >
+{
+	NSWindow *		_window;
+	NSOpenGLView *	_gl_view;
+}
+
+-(id)initWithGame
+:(NSWindow*)window
+:(proto::window_controller *) controller_instance
+:(proto::details::window_osx_native *) window_instance;
+
+@end
+
+@interface proto_app_controller : NSObject
+{
+	NSWindow * _window;
+}
+
+- (void)applicationWillFinishLaunching:(NSNotification *) notification;
+- (void)applicationDidFinishLaunching:(NSNotification *) notification;
+
+
+@end
+
+@implementation proto_window_controller
 
 #pragma mark
 
 -(id)initWithGame
 	:(NSWindow*)window
-	:(ballistic::game *) game_instance
-	:(ballistic::osx_desktop::frontend *) frontend_instance
+	:(proto::game *) game_instance
+	:(proto::osx_desktop::frontend *) frontend_instance
 {
 	if ((self = [super init])){
 		_window = nil;
@@ -196,7 +267,7 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 			return self;
 		}
 		
-		_gl_view = [[ballistic_opengl_view alloc] initWithGame:[[_window contentView] frame] : game_instance : frontend_instance ];
+		_gl_view = [[proto_opengl_view alloc] initWithGame:[[_window contentView] frame] : game_instance : frontend_instance ];
 		if (_gl_view == nil)
 		{
 			//FAIL
@@ -224,7 +295,7 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 
 @end
 
-@implementation ballistic_app_controller
+@implementation proto_app_controller
 
 - (void)applicationWillFinishLaunching:(NSNotification *) notification
 {
@@ -244,5 +315,6 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 }
 
 @end
+ */
 
 #endif

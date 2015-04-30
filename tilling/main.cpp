@@ -22,7 +22,7 @@ proto::mat4
 void load_stuffs () {
 
 	const char * vertex_source = proto_shader_source (
-		#version 330 core \n												
+		//#version 330 core \n
 																		
 		uniform mat4 uni_t_model;										
 		uniform mat4 uni_t_view;										
@@ -48,7 +48,7 @@ void load_stuffs () {
 	);
 
 	const char * pixel_source = proto_shader_source (
-		#version 330 core \n
+		//#version 330 core \n
 
 		uniform sampler2D uni_texture;
 

@@ -1,9 +1,81 @@
 #ifdef PROTO_OS_DARWIN
 
 #import "proto.window.h"
-#import "proto.window_osx_native.h"
 #import <AppKit/AppKit.h>
 
+#include <memory>
+
+namespace proto {
+	
+	class window_imp {
+	public:
+		
+		NSWindow *	instance;
+		
+	};
+	
+	window::window () {}
+	
+	void window::show () const {
+		
+	}
+	
+	void window::hide () const {
+	}
+	
+	void window::close () {}
+	
+	bool window::is_visible () const {
+		return [_implement->instance isVisible];
+	}
+	
+	bool window::is_closed () const {
+		return !_implement;
+	}
+	
+	point window::size () const {
+		if (!_implement)
+			return { 0, 0 };
+		
+		NSRect frame = [_implement->instance frame];
+		return { (int)frame.size.width, (int)frame.size.height };
+	}
+	
+	void window::size (const point & p) {
+		if (!_implement)
+			return;
+		
+		NSRect frame = [_implement->instance frame];
+		
+		frame.size.width = p.x;
+		frame.size.height = p.y;
+		
+		[_implement->instance setFrame : frame
+			display : YES
+			animate : NO
+		 ];
+	}
+	
+	void * window::native_handle () const {
+		if (_implement)
+			return (void *)_implement->instance;
+		
+		return nullptr;
+	}
+	
+	void * window::native_device () const {
+		return nullptr;
+	}
+	
+	void window::make_active () {}
+	
+	shared_ptr < window > window::create ( const char * title, const point & size_v) {
+		return nullptr;
+	}
+	
+}
+
+/*
 namespace proto {
 	namespace details {
 		
@@ -77,6 +149,6 @@ namespace proto {
 		
 	}
 }
-
+*/
 
 #endif

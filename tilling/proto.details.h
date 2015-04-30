@@ -33,8 +33,8 @@ namespace proto {
 
 			// move operator
 			inline scope_guard (scope_guard < _method_t > && o) :
-				_method (std::move (o._method)),
-				_active (o._active)
+				_active (o._active),
+				_method (std::move (o._method))
 			{
 				o.dismiss ();
 			}

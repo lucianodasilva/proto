@@ -87,7 +87,6 @@ namespace proto {
 		point size () const;
 		void size (const point & p);
 
-
 		inline renderer & renderer () { return _renderer; }
 
 		void *	native_handle () const;
