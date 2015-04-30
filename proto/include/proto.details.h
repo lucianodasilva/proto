@@ -3,12 +3,27 @@
 #ifndef	_proto_details_h_
 #define _proto_details_h_
 
-#include <functional>
+#include <atomic>
 #include <fstream>
-#include <vector>
+#include <functional>
+#include <mutex>
 #include <string>
+#include <vector>
 
 namespace proto {
+
+	struct spin_mutex {
+	private:
+		std::atomic_flag _lockless_flag = ATOMIC_FLAG_INIT;
+	public:
+		inline void lock() {
+			while (_lockless_flag.test_and_set(std::memory_order_acquire)) {}
+		}
+
+		inline void unlock() {
+			_lockless_flag.clear(std::memory_order_release);
+		}
+	};
 
 	namespace details {
 
@@ -116,7 +131,8 @@ namespace proto {
 	public:
 		using handler_t = std::function < void (_sender_t &) >;
 	private:
-		std::vector < handler_t > handlers;
+		mutable spin_mutex			_handler_mutex;
+		std::vector < handler_t >	_handlers;
 	public:
 
 
@@ -127,23 +143,26 @@ namespace proto {
 		inline event () {}
 
 		inline void invoke (_sender_t & sender) const {
-			for (auto & h : handlers)
+			std::lock_guard < spin_mutex > lock (_handler_mutex);
+			for (auto & h : _handlers)
 				h (sender);
 		}
 
 		inline void operator += (const handler_t & handler) {
-			handlers.emplace_back (handler);
+			std::lock_guard < spin_mutex > lock (_handler_mutex);
+			_handlers.emplace_back (handler);
 		}
 
 		inline void operator -= (const handler_t & handler) {
+			std::lock_guard < spin_mutex > lock (_handler_mutex);
 			auto it = std::find (
-				handlers.begin (),
-				handlers.end (),
+				_handlers.begin (),
+				_handlers.end (),
 				handler
 				);
 
-			if (it != handlers.end ())
-				handlers.erase (it);
+			if (it != _handlers.end ())
+				_handlers.erase (it);
 		}
 	};
 
