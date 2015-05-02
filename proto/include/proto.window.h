@@ -64,9 +64,10 @@ namespace proto {
 
 		unique_ptr < class window_imp > _implement;
 		renderer						_renderer;
-		window ();
 
 	public:
+		
+		window ();
 
 		mouse_down_event	on_mouse_down;
 		mouse_up_event		on_mouse_up;

@@ -54,13 +54,13 @@ namespace proto {
 
 				uint64_t call_count;
 
-				inline multiple_timed_function_call (uint32_t call_count_v, timed_function_call < _rt, _args_tv ... >::func_t function) :
+				inline multiple_timed_function_call (uint32_t call_count_v, typename timed_function_call < _rt, _args_tv ... >::func_t function) :
 					timed_function_call < _rt, _args_tv ... > (function),
-					call_count (calls)
+					call_count (call_count_v)
 				{}
 
 				inline multiple_timed_function_call (const multiple_timed_function_call & v) :
-					function (v.function),
+				timed_function_call < _rt, _args_tv ... >::function (v.function),
 					call_count (v.call_count)
 				{ }
 

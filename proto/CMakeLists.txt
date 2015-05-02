@@ -20,5 +20,23 @@ glob_code ( ${proto_path}/src source_files )
 include_directories (${proto_path}/include)
 
 add_library ( proto STATIC ${source_files} ${header_files})
-target_link_libraries(proto ${OPENGL_LIBRARIES} glew)
+
+if (APPLE)
+	set(CMAKE_C_FLAGS "-x objective-c")
+	set(CMAKE_CXX_FLAGS "-x objective-c++")
+
+	find_library(COCOA_LIBRARY Cocoa)
+	find_library(CORE_VIDEO_LIBRARY CoreVideo)
+
+	mark_as_advanced (
+		COCOA_LIBRARY,
+		CORE_VIDEO_LIBRARY
+	)
+
+	set ( proto_dependencies ${OPENGL_LIBRARIES} ${COCOA_LIBRARY} ${CORE_VIDEO_LIBRARY} glew )
+else ()
+	set ( proto_dependencies ${OPENGL_LIBRARIES} glew )
+endif ()
+
+target_link_libraries(proto ${proto_dependencies} )
 
