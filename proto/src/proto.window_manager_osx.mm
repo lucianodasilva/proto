@@ -18,7 +18,12 @@ namespace proto {
 		return manager;
 	}
 	
-	void window_manager::main_loop () {}
+	void window_manager::main_loop () {
+		[NSApplication sharedApplication];
+		[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+		[NSApp activateIgnoringOtherApps:YES];
+		[NSApp run];
+	}
 	
 }
 

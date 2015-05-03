@@ -8,6 +8,7 @@
 @protocol proto_window_interface_protocol
 
 -(void)show_window;
+-(void)hide_window;
 -(void)close_window;
 
 @end
@@ -61,12 +62,21 @@ namespace proto {
 	window::~window () {}
 	
 	void window::show () {
+		if (_implement)
+			[_implement->controller show_window];
 	}
 	
 	void window::hide () {
+		if (_implement)
+			[_implement->controller hide_window];
 	}
 	
-	void window::close () {}
+	void window::close () {
+		if (_implement) {
+			[_implement->controller close_window];
+			_implement.release ();
+		}
+	}
 	
 	bool window::is_visible () const {
 		return [_implement->instance isVisible];
@@ -352,6 +362,10 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 	[[_gl_view openGLContext] makeCurrentContext];
 	[_nswindow makeKeyAndOrderFront:nil];
 	//[_window setAcceptsMouseMovedEvents:YES];
+}
+
+-(void)hide_window {
+	[_nswindow orderOut:nil];
 }
 
 -(void)close_window {
