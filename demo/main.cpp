@@ -19,20 +19,20 @@ void load_stuffs() {
 
 	prog = proto::program::link(vs, ps);
 
-	//quad = proto::mesh::create_quad (1.0F, proto::vec3{ .0F, .0F, -1.F });
+	quad = proto::mesh::create_quad (1.0F, proto::vec3{ .0F, .0F, -1.F });
 
-	proto::mesh_builder builder;
+	//proto::mesh_builder builder;
 
-	uint16_t
-		i1 = builder.add_element({ { -.5F, .5F, .0F },{ .0F, .0F },{ .0F, .0F, -1.F } }),
-		i2 = builder.add_element({ { .5F, .5F, .0F },{ 1.F, .0F },{ .0F, .0F, -1.F } }),
-		i3 = builder.add_element({ { .5F, -.5F, .0F },{ .0F, 1.F },{ .0F, .0F, -1.F } }),
-		i4 = builder.add_element({ { -.5F, -.5F, .0F },{ 1.F, 1.F },{ .0F, .0F, -1.F } });
-
-	builder.add_face({ i1, i2, i3 });
-	builder.add_face({ i4, i2, i3 });
-
-	quad = builder.make_mesh();
+	//uint16_t
+	//	i1 = builder.add_element({ { -.5F, .5F, .0F },{ .0F, .0F },{ .0F, .0F, -1.F } }),
+	//	i2 = builder.add_element({ { .5F, .5F, .0F },{ 1.F, .0F },{ .0F, .0F, -1.F } }),
+	//	i3 = builder.add_element({ { .5F, -.5F, .0F },{ .0F, 1.F },{ .0F, .0F, -1.F } }),
+	//	i4 = builder.add_element({ { -.5F, -.5F, .0F },{ 1.F, 1.F },{ .0F, .0F, -1.F } });
+	//
+	//builder.add_face({ i1, i2, i3 });
+	//builder.add_face({ i1, i3, i4 });
+	//
+	//quad = builder.make_mesh();
 
 	demo_tex = proto::texture::create_checkers(32, 32, 4, 4);
 
@@ -56,6 +56,7 @@ void load_stuffs() {
 void on_window_render(proto::window & w, proto::renderer & r) {
 	r.clear({ .0F, .2F, .3F }, proto::clear_mask::color | proto::clear_mask::depth);
 
+	r.set_mesh(quad);
 	r.set_program(prog);
 	r.set_texture(demo_tex);
 
@@ -70,7 +71,6 @@ void on_window_render(proto::window & w, proto::renderer & r) {
 
 	prog.set_value("uni_texture", demo_tex.id ());
 
-	r.set_mesh(quad);
 	r.render_mesh(quad);
 
 	r.present();

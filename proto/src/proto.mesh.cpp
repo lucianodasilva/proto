@@ -192,7 +192,8 @@ namespace proto {
 
 	mesh mesh::create_quad (float size, const vec3 & direction) {
 		mesh_builder builder;
-		builder.add_quad (size, {.0F, .0F, .0F}, direction);
+				
+		builder.add_quad(size, { .0F, .0F, .0F }, { .0F, 1.0F, .0F }, direction);
 		return builder.make_mesh ();
 	}
 
@@ -210,12 +211,14 @@ namespace proto {
 
 		float hs = size / 2.0F;
 
-		builder.add_quad (size, top * hs, top);
-		builder.add_quad (size, bottom * hs, bottom);
-		builder.add_quad (size, left * hs, left);
-		builder.add_quad (size, right * hs, right);
-		builder.add_quad (size, back * hs, back);
-		builder.add_quad (size, front * hs, front);
+		vec3 up = { .0F, 1.0F, .0F };
+
+		builder.add_quad (size, top * hs, up, top);
+		builder.add_quad (size, bottom * hs, up, bottom);
+		builder.add_quad (size, left * hs, up, left);
+		builder.add_quad (size, right * hs, up, right);
+		builder.add_quad (size, back * hs, up, back);
+		builder.add_quad (size, front * hs, up, front);
 
 		return builder.make_mesh();
 	}

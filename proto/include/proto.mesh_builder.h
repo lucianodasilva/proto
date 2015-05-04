@@ -42,7 +42,7 @@ namespace proto {
 		uint16_t add_element ( const element & e );
 		void add_face ( const face & f );
 
-		void add_quad ( float size, const vec3 & center, const vec3 & normal );
+		void add_quad ( float size, const vec3 & center, const vec3 & up, const vec3 & direction );
 
 		void reset ();
 

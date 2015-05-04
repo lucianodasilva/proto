@@ -25,20 +25,25 @@ namespace proto {
     void mesh_builder::add_quad (
             float size,
             const vec3 & center,
-            const vec3 & normal
+			const vec3 & up,
+            const vec3 & direction
     ) {
+		using namespace proto::math;
 
         float hs = size / 2.0F;
+		auto look_at = make_look_at( center, up, direction);
 
         vec3
         // top left
-			v1 = proto::math::cross ( vec3 { -hs, hs, .0F }, normal) + center,
+			v1 = look_at * vec3 { -hs, hs, .0F },
         // top right
-			v2 = proto::math::cross ( vec3 { hs, hs, .0F }, normal) + center,
+			v2 = look_at * vec3 { hs, hs, .0F },
         // bottom left
-            v3 = proto::math::cross ( vec3 { -hs, -hs, .0F }, normal) + center,
+            v3 = look_at * vec3 { hs, -hs, .0F },
         // bottom right
-            v4 = proto::math::cross ( vec3 { hs, -hs, .0F }, normal) + center;
+            v4 = look_at * vec3 { -hs, -hs, .0F };
+
+		vec3 normal = normalize(direction - center);
 
         auto
             i1 = add_element ({v1, {.0F, .0F}, normal}),
@@ -47,7 +52,7 @@ namespace proto {
             i4 = add_element ({v4, {1.F, 1.F}, normal});
 
         add_face ({i1, i2, i3});
-        add_face ({i3, i2, i4});
+        add_face ({i1, i3, i4});
     }
 
     void mesh_builder::reset () {
