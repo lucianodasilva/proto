@@ -27,7 +27,7 @@ namespace proto {
 		if (attributes & mesh_attributes::position) {
 			gl_error_guard ("MESH SET POSITION ATTRIBUTE");
 			glVertexAttribPointer (
-				1,
+				(GLuint)mesh_location::position,
 				3,
 				GL_FLOAT,
 				GL_FALSE,
@@ -42,7 +42,7 @@ namespace proto {
 		if (attributes & mesh_attributes::uv) {
 			gl_error_guard ("MESH SET UV ATTRIBUTE");
 			glVertexAttribPointer (
-				1,
+				(GLuint)mesh_location::uv,
 				2,
 				GL_FLOAT,
 				GL_FALSE,
@@ -57,7 +57,7 @@ namespace proto {
 		if (attributes & mesh_attributes::normal) {
 			gl_error_guard ("MESH SET NORMAL ATTRIBUTE");
 			glVertexAttribPointer (
-				1,
+				(GLuint)mesh_location::normal,
 				3,
 				GL_FLOAT,
 				GL_FALSE,
@@ -75,6 +75,7 @@ namespace proto {
 		std::swap (_vertex_buffer_id, m._vertex_buffer_id);
 		std::swap (_index_buffer_id, m._index_buffer_id);
 		std::swap (_vbo_id, m._vbo_id);
+		std::swap(_index_count, m._index_count);
 		std::swap (_is_active, m._is_active);
 	}
 

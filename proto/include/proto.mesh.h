@@ -10,6 +10,12 @@
 
 namespace proto {
 
+	enum class mesh_location : uint32_t {
+		position = 1,
+		uv = 2,
+		normal = 3
+	};
+
 	enum class mesh_attributes : uint32_t {
 		position =	0x0001,
 		uv =		0x0002,
