@@ -68,6 +68,7 @@ namespace proto {
 								&name_len, &num, &type, name);
 			name[name_len] = 0;
 			GLuint location = glGetUniformLocation (new_p._program_id, name);
+			
 
 		#if _DEBUG
 			// this is a memory leak ( oh well )

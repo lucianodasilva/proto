@@ -69,7 +69,7 @@ void on_window_render(proto::window & w, proto::renderer & r) {
 	prog.set_value("uni_t_normal", mv.transpose().invert());
 	prog.set_value("uni_t_mvp", mvp);
 
-	prog.set_value("uni_texture", demo_tex.id ());
+	prog.set_value("uni_texture", (int)demo_tex.id ());
 
 	r.render_mesh(quad);
 
