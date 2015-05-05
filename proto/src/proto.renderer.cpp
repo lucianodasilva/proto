@@ -34,7 +34,7 @@ namespace proto {
 
 	void renderer::render_mesh (mesh & m) {
 		gl_error_guard ("RENDERER RENDER MESH");
-		glDrawElements (GL_TRIANGLES, m.index_count (), GL_UNSIGNED_SHORT, 0);
+		glDrawElements (GL_TRIANGLES, m.index_count(), GL_UNSIGNED_SHORT, 0);
 	}
 
 	void renderer::set_program (program & p) {

@@ -124,16 +124,15 @@ namespace proto {
 		
 		mesh new_m;
 
-		// Create vertex buffer	and index buffer
-		glGenBuffers (2, &new_m._vertex_buffer_id);
-
-		// Bind vertex buffer
+		// Create vertex buffer
+		glGenBuffers (1, &new_m._vertex_buffer_id);
 		glBindBuffer (GL_ARRAY_BUFFER, new_m._vertex_buffer_id);
 
 		// Set vertex buffer data
 		glBufferData (GL_ARRAY_BUFFER, vertex_buffer_size, (GLvoid*)vertex_buffer, dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
 
 		// Create index buffer
+		glGenBuffers(1, &new_m._index_buffer_id);
 		glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, new_m._index_buffer_id);
 
 		// Set index buffer data
@@ -160,6 +159,7 @@ namespace proto {
 		glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		new_m._index_count = index_buffer_size;
+		new_m._is_active = true;
 
 		return new_m;
 	}

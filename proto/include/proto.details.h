@@ -88,7 +88,9 @@ namespace proto {
 		guard_dismiss (gv...);
 	}
 
-#	define auto_guard auto __scopeguard_##__COUNTER__ = proto::scope_guard
+#	define macro_cat_impl(x,y) x##y
+#	define macro_cat(x,y) macro_cat_impl (x, y)
+#	define auto_guard auto macro_cat (__scopeguard_, __COUNTER__) = proto::scope_guard
 
 	template < class _sender_t, class ... _argv_tv > 
 	struct event {

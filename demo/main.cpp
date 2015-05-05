@@ -85,7 +85,7 @@ void on_window_close(proto::window & sender) {
 }
 
 void close_callback() {
-	quad = proto::mesh();
+	//quad = proto::mesh();
 }
 
 int main(int arg_c, char * arg_v[]) {
