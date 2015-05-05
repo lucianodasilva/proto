@@ -45,6 +45,8 @@
 :(NSWindow*)							nswindow
 :(std::shared_ptr < proto::window >)	proto_window;
 
+-(NSOpenGLView *)						getGLView;
+
 @end
 
 namespace proto {
@@ -57,7 +59,7 @@ namespace proto {
 		
 	};
 	
-	window::window () {}
+	window::window () : _implement (new window_imp ()) {}
 	
 	window::~window () {}
 	
@@ -79,7 +81,7 @@ namespace proto {
 	}
 	
 	bool window::is_visible () const {
-		return [_implement->instance isVisible];
+		return !is_closed () && [_implement->instance isVisible];
 	}
 	
 	bool window::is_closed () const {
@@ -120,7 +122,10 @@ namespace proto {
 		return nullptr;
 	}
 	
-	void window::make_active () {}
+	void window::make_active () {
+		if (_implement)
+			[[[_implement->controller getGLView] openGLContext] makeCurrentContext];
+	}
 	
 	shared_ptr < window > window::create ( const char * title, const point & size_v) {
 		
@@ -162,14 +167,17 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 
 - (CVReturn)getFrameForTime:(const CVTimeStamp*)outputTime
 {
-	// Add your drawing codes here
+	// update logic
+	_proto_window->on_window_update.invoke (*_proto_window.get ());
+	
+	// update graphics
+	_proto_window->make_active();
+	_proto_window->on_window_render.invoke (*_proto_window.get (), _proto_window->renderer());
+	
 	[[self openGLContext] makeCurrentContext];
 	
-	//if (!_game_instance->frame ()) <- CALLBACK HERE ( update and render ??? )
-	//	return kCVReturnLast;
-	
 	[[self openGLContext] flushBuffer];
-	return kCVReturnSuccess;
+	return _proto_window->is_closed () ? kCVReturnLast : kCVReturnSuccess;
 }
 
 - (void)dealloc
@@ -347,7 +355,7 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 		if (_gl_view == nil)
 		{
 			//FAIL
-			NSLog (@"Ballistic OpenGL View failed loading.");
+			NSLog (@"proto OpenGL View failed loading.");
 			return self;
 		}
 		
@@ -358,9 +366,13 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 	return self;
 }
 
+-(NSOpenGLView *) getGLView {
+	return _gl_view;
+}
+
 -(void)show_window {
 	[[_gl_view openGLContext] makeCurrentContext];
-	[_nswindow makeKeyAndOrderFront:nil];
+	[_nswindow makeKeyAndOrderFront: self];
 	//[_window setAcceptsMouseMovedEvents:YES];
 }
 
@@ -374,81 +386,5 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 }
 
 @end
-
-/*
-namespace proto {
-	namespace details {
-		
-		struct window_internals {
-			NSWindow *						window_instance;
-			window_controller *				window_controller;
-			input_listener *				input;
-		};
-		
-		void frontend::input (input_listener * input_instance) {
-			_internals->input = input_instance;
-		}
-		
-		input_listener * frontend::input () const {
-			return _internals->input;
-		}
-		
-		frontend::frontend ( ) :
-			_internals (new frontend_internals ())
-		{
-			_internals->window_instance = nil;
-			_internals->window_controller = nil;
-			_internals->input = new input_listener ();
-			_internals->game_instance = nullptr;
-		}
-		
-		frontend::~frontend () {
-			delete _internals;
-		}
-		
-		bool frontend::initialize(ballistic::game * game_instance, const point & window_size ) {
-			
-			_internals->game_instance = game_instance;
-			
-			_internals->window_instance = [[NSWindow alloc]
-							initWithContentRect: NSMakeRect ( 10, 10, window_size.x, window_size.y )
-							styleMask : (NSTitledWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask )
-							backing:NSBackingStoreBuffered
-							defer:NO
-						 ];
-			
-			[_internals->window_instance cascadeTopLeftFromPoint:NSMakePoint (20, 20)];
-			[_internals->window_instance setTitle:@""];
-			[_internals->window_instance makeKeyAndOrderFront:nil];
-			
-			if (_internals->window_instance == nil)
-				return false;
-			
-			_internals->window_controller = [[ballistic_window_controller alloc] initWithGame : _internals->window_instance : _internals->game_instance : this];
-			
-			if (_internals->window_controller == nil)
-				return false;
-			
-			[_internals->window_controller show_window];
-			
-			return true;
-		}
-		
-		void frontend::terminate () {
-			[_internals->window_instance dealloc];
-			_internals->window_instance = nil;
-			[_internals->window_controller close_window];
-		}
-		
-		void frontend::do_event_loop() {
-			[NSApplication sharedApplication];
-			[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
-			[NSApp activateIgnoringOtherApps:YES];
-			[NSApp run];
-		}
-		
-	}
-}
-*/
 
 #endif
