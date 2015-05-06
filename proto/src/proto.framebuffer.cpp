@@ -49,7 +49,7 @@ namespace proto {
 
 		framebuffer new_f;
 
-		glCreateFramebuffers (1, &new_f._framebuffer_id);
+		glGenFramebuffers (1, &new_f._framebuffer_id);
 		
 		new_f._is_active = true;
 		new_f._has_renderbuffer = true;
