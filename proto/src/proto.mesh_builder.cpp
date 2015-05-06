@@ -48,8 +48,8 @@ namespace proto {
         auto
             i1 = add_element ({v1, {.0F, .0F}, normal}),
             i2 = add_element ({v2, {1.F, .0F}, normal}),
-            i3 = add_element ({v3, {.0F, 1.F}, normal}),
-            i4 = add_element ({v4, {1.F, 1.F}, normal});
+            i3 = add_element ({v3, {1.F, 1.F}, normal}),
+            i4 = add_element ({v4, {.0F, 1.F}, normal});
 
         add_face ({i1, i2, i3});
         add_face ({i1, i3, i4});

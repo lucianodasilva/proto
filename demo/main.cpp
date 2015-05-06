@@ -7,12 +7,18 @@ proto::mesh quad;
 proto::program prog;
 proto::texture demo_tex;
 
+proto::texture color_buffer;
+proto::framebuffer mem_frame;
+
 proto::mat4
 	model,
 	view,
 	projection;
 
 void load_stuffs() {
+
+	color_buffer = proto::texture::create(nullptr, 512, 512, proto::texture_format::rgba);
+	mem_frame = proto::framebuffer::create(color_buffer);
 
 	auto vs = proto::shader::compile(proto::shader_type::vertex, proto::get_file_content ("resources/basic_shader.vs"));
 	auto ps = proto::shader::compile(proto::shader_type::pixel, proto::get_file_content("resources/basic_shader.ps"));
@@ -54,22 +60,28 @@ void load_stuffs() {
 }
 
 void on_window_render(proto::window & w, proto::renderer & r) {
+	// swap framebuffer
+	{
+		r.set_framebuffer(mem_frame);
+		r.clear({ .0F, 1.0F, .0F }, proto::clear_mask::color | proto::clear_mask::depth);
+		r.set_mesh(quad);
+		r.set_program(prog);
+		r.set_texture(demo_tex);
+
+		prog.set_value < int32_t >("uni_texture", 0);
+
+		r.render_mesh(quad);
+		r.present();
+	}
+
+	r.reset_framebuffer();
 	r.clear({ .0F, .2F, .3F }, proto::clear_mask::color | proto::clear_mask::depth);
 
 	r.set_mesh(quad);
 	r.set_program(prog);
-	r.set_texture(demo_tex);
+	r.set_texture(color_buffer);
 
-	auto mv = model * view;
-	auto mvp = mv * projection;
-
-	prog.set_value("uni_t_model", model);
-	prog.set_value("uni_t_view", view);
-	prog.set_value("uni_t_proj", projection);
-	prog.set_value("uni_t_normal", mv.transpose().invert());
-	prog.set_value("uni_t_mvp", mvp);
-
-	prog.set_value("uni_texture", (int)demo_tex.id ());
+	prog.set_value < int32_t > ("uni_texture", 0);
 
 	r.render_mesh(quad);
 

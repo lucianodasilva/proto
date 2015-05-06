@@ -17,12 +17,17 @@ namespace proto {
 		bool	_has_renderbuffer;
 		bool	_has_no_backbuffer;
 
-		framebuffer ();
 
     public:
 
+		void swap(framebuffer & v);
+
+		framebuffer ();
+
 		framebuffer (framebuffer && v);
 		~framebuffer ();
+
+		framebuffer & operator = (framebuffer && v);
 
 		void bind () const;
 		

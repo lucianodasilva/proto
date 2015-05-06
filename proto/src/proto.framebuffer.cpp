@@ -3,6 +3,14 @@
 
 namespace proto {
 
+	void framebuffer::swap(framebuffer & v) {
+		std::swap(_framebuffer_id, v._framebuffer_id);
+		std::swap(_auxiliar_id, v._auxiliar_id);
+		std::swap(_is_active, v._is_active);
+		std::swap(_has_renderbuffer, v._has_renderbuffer);
+		std::swap(_has_no_backbuffer, v._has_no_backbuffer);
+	}
+
 	framebuffer::framebuffer () :
 		_is_active (false),
 		_has_renderbuffer (false),
@@ -10,13 +18,7 @@ namespace proto {
 	{}
 
 	framebuffer::framebuffer (framebuffer && v) {
-		using namespace std;
-
-		swap (_framebuffer_id,		v._framebuffer_id);
-		swap (_auxiliar_id,			v._auxiliar_id);
-		swap (_is_active,			v._is_active);
-		swap (_has_renderbuffer,	v._has_renderbuffer);
-		swap (_has_no_backbuffer,	v._has_no_backbuffer);
+		swap(v);
 	}
 
 	framebuffer::~framebuffer () {
@@ -30,17 +32,15 @@ namespace proto {
 		}
 	}
 
-	void framebuffer::bind () const {
-		gl_error_guard ("FRAMEBUFFER BIND");
-		if (_is_active) {
-			glBindFramebuffer (GL_FRAMEBUFFER, _framebuffer_id);
-			
-			GLuint buffer = GL_BACK;
-			if (_has_no_backbuffer)
-				buffer = GL_NONE;
+	framebuffer & framebuffer::operator = (framebuffer && v) {
+		swap(v);
+		return *this;
+	}
 
-			glDrawBuffer (buffer);
-			glReadBuffer (buffer);
+	void framebuffer::bind () const {
+		if (_is_active) {
+			gl_error_guard("FRAMEBUFFER BIND");
+			glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer_id);
 		}
 	}
 
@@ -54,7 +54,8 @@ namespace proto {
 		new_f._is_active = true;
 		new_f._has_renderbuffer = true;
 
-		new_f.bind ();
+		glBindFramebuffer(GL_FRAMEBUFFER, new_f._framebuffer_id);
+
 		glFramebufferTexture2D (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color_buffer.id (), 0);
 
 		// create depth buffer

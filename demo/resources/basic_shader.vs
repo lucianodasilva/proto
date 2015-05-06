@@ -18,6 +18,6 @@ void main() {
 	//var_normal = (uni_t_normal * vec4(in_normal, 1.0)).xyz;
 	//
 	//var_uv = in_uv;
-
+	var_uv = in_uv;
 	gl_Position = vec4 (in_position.xyz, 1.0);
 }

@@ -12,11 +12,15 @@ namespace proto {
 		std::swap (_format, t._format);
 		std::swap (_mag_filter, t._mag_filter);
 		std::swap (_min_filter, t._min_filter);
+		std::swap (_wrap_s, t._wrap_s);
+		std::swap (_wrap_t, t._wrap_t);
+		std::swap (_width, t._width);
+		std::swap (_height, t._height);
 	}
 
     texture::texture() :
 		_texture_id (0),
-		_is_active (0),
+		_is_active (false),
 		_width (0),
 		_height (0)
 	{}
