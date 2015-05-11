@@ -20,6 +20,8 @@ namespace proto {
 	class window_manager {
 	private:
 
+		shared_ptr < window >				_dummy_window;
+
 		vector < shared_ptr < window > >	_windows;
 
 		mutex								_new_mutex;
@@ -27,15 +29,21 @@ namespace proto {
 
 		window_manager ();
 
+		void register_window(const shared_ptr < window > & w);
+
+		friend class window;
+
 	public:
+
+		~window_manager();
 
 		window_manager (const window_manager &) = delete;
 		window_manager & operator = (const window_manager &) = delete;
 
 		static window_manager & instance ();
-		static void main_loop ();
 
-		void register_window (const shared_ptr < window > & w);
+		static bool initialize();
+		static void main_loop ();
 
 	};
 

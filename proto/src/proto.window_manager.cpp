@@ -1,0 +1,225 @@
+
+#include "proto.window_manager.h"
+#include "proto.window.h"
+#include "proto.debug.h"
+
+#include <SDL.h>
+#include <SDL_opengl.h>
+#include <GL/glew.h>
+
+using namespace std;
+
+namespace proto {
+
+
+
+	//inline void get_mouse_info (
+	//	HWND hWnd,
+	//	WPARAM wParam,
+	//	LPARAM lParam,
+	//	mouse_buttons & out_buttons,
+	//	point & out_position
+	//	) {
+
+	//	out_position.x = GET_X_LPARAM (lParam);
+	//	out_position.y = GET_Y_LPARAM (lParam);
+
+	//	out_buttons = mouse_buttons::none;
+
+	//	out_buttons = out_buttons | (wParam & MK_LBUTTON ? mouse_buttons::left : mouse_buttons::none);
+	//	out_buttons = out_buttons | (wParam & MK_RBUTTON ? mouse_buttons::right : mouse_buttons::none);
+	//	out_buttons = out_buttons | (wParam & MK_MBUTTON ? mouse_buttons::middle : mouse_buttons::none);
+	//}
+
+	//inline window * get_window_userdata (HWND hWnd) {
+	//	return reinterpret_cast < window  *> (GetWindowLongPtr (hWnd, GWLP_USERDATA));
+	//}
+
+	//LRESULT CALLBACK windows_message_callback (HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	//	switch (msg) {
+	//	case WM_CREATE:
+	//	{
+	//		CREATESTRUCT * create = reinterpret_cast <CREATESTRUCT *> (lParam);
+	//		auto instance = reinterpret_cast <window *> (create->lpCreateParams);
+	//		SetWindowLongPtr (hWnd, GWLP_USERDATA, (LONG_PTR)instance);
+	//		return DefWindowProc (hWnd, msg, wParam, lParam);
+	//	}
+	//	case WM_DESTROY:
+	//		PostQuitMessage (0);
+	//		return 0;
+	//	case WM_SIZE:
+	//	{
+	//		//frontend * instance = reinterpret_cast <frontend *> (GetWindowLongPtr (hWnd, GWLP_USERDATA));
+	//		//instance->on_resize ();
+	//		//return 0;
+	//	}
+	//	case WM_MOUSEMOVE:
+	//	{
+	//		mouse_buttons	mouse_buttons;
+	//		point			mouse_position;
+
+	//		get_mouse_info (hWnd, wParam, lParam, mouse_buttons, mouse_position);
+
+	//		auto win = get_window_userdata (hWnd);
+	//		auto args = mouse_move_event_args{ mouse_position };
+	//		win->on_mouse_move.invoke (*win, args);
+
+	//		return 0;
+	//	}
+	//	case WM_LBUTTONDOWN:
+	//	case WM_RBUTTONDOWN:
+	//	case WM_MBUTTONDOWN:
+	//	{
+	//		mouse_buttons	mouse_buttons;
+	//		point			mouse_position;
+
+	//		get_mouse_info (hWnd, wParam, lParam, mouse_buttons, mouse_position);
+
+	//		auto win = get_window_userdata (hWnd);
+	//		auto args = mouse_down_event_args{ mouse_position, mouse_buttons };
+
+	//		win->on_mouse_down.invoke (*win, args);
+
+	//		return 0;
+	//	}
+	//	case WM_LBUTTONUP:
+	//	case WM_RBUTTONUP:
+	//	case WM_MBUTTONUP:
+	//	{
+	//		mouse_buttons	mouse_buttons;
+	//		point			mouse_position;
+
+	//		get_mouse_info (hWnd, wParam, lParam, mouse_buttons, mouse_position);
+
+	//		auto win = get_window_userdata (hWnd);
+	//		auto args = mouse_up_event_args{ mouse_position, mouse_buttons };
+
+	//		win->on_mouse_up.invoke (*win, args);
+
+	//		return 0;
+	//	}
+	//	case WM_MOUSEWHEEL:
+	//	{
+	//		//send_mouse_message (mouse_event_wheel, hWnd, wParam, lParam);
+	//		return 0;
+	//	}
+	//	case WM_CLOSE:
+	//	{
+	//		auto win = get_window_userdata (hWnd);
+	//		win->on_window_close.invoke (*win);
+	//	}
+	//	default:
+	//		return DefWindowProc (hWnd, msg, wParam, lParam);
+	//	}
+	//}
+
+	window_manager::window_manager ()
+	{}
+
+	window_manager::~window_manager() {}
+
+	window_manager & window_manager::instance () {
+		static window_manager manager;
+		return manager;
+	}
+
+	bool window_manager::initialize() {
+		window_manager & manager = instance();
+
+		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+			debug_print << "failed to initialize SDL system";
+			return false;
+		}
+
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+		
+		// make dummy window
+		manager._dummy_window = proto::window::create("", { 10, 10 });
+		manager._dummy_window->make_current();
+
+		glewExperimental = true;
+		GLenum err = glewInit();
+
+		if (GLEW_OK != err) {
+			/* Problem: glewInit failed, something is seriously wrong. */
+			debug_print << "failed to initialize glew with error: " << glewGetErrorString(err);
+			return false;
+		}
+		else {
+			string gl_str_version = (const char *)glGetString(GL_VERSION);
+			debug_print << "opengl version: " << gl_str_version;
+		}
+
+		// should perhaps setup VSync with the following code
+		// SDL_GL_SetSwapInterval(1)
+
+		return true;
+	}
+
+	void window_manager::main_loop () {
+
+		window_manager & manager = instance ();
+
+		vector < vector < shared_ptr < window > >::iterator >
+			death_row;
+
+		do {
+
+			SDL_Event e;
+
+			// empty event pool
+			while (SDL_PollEvent(&e)) {
+				for (auto & w : manager._windows) {
+					w->handle_event(&e);
+				}
+			}
+
+			for (
+				auto w_it = manager._windows.begin ();
+				w_it != manager._windows.end ();
+				++w_it
+			) {
+
+				auto & w_ptr = *w_it;
+
+				if (w_ptr->is_closed ()) {
+					death_row.push_back (w_it);
+					continue;
+				}
+
+				w_ptr->on_window_update.invoke (*w_ptr.get ());
+
+				if (w_ptr->is_visible ()) {
+					w_ptr->make_current ();
+					w_ptr->on_window_render.invoke (*w_ptr.get ());
+
+					w_ptr->swap_context();
+				}
+			}
+
+			{
+				for (auto & win_it : death_row) {
+					manager._windows.erase (win_it);
+				}
+
+				death_row.clear ();
+
+				lock_guard < mutex > new_lock (manager._new_mutex);
+
+				for (auto & w_it : manager._new) {
+					manager._windows.push_back (w_it);
+				}
+
+				manager._new.clear ();
+			}
+		} while (manager._windows.size ());
+	}
+
+	void window_manager::register_window (const shared_ptr < window > & w) {
+		lock_guard < mutex > lock (_new_mutex);
+		_new.emplace_back (w);
+	}
+
+}
