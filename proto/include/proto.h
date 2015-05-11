@@ -5,6 +5,7 @@
 
 #include "proto.color.h"
 #include "proto.debug.h"
+#include "proto.dispatcher.h"
 #include "proto.formats.h"
 #include "proto.framebuffer.h"
 #include "proto.id.h"
