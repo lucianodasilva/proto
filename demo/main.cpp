@@ -3,99 +3,93 @@
 
 #include <proto.h>
 
-proto::mesh quad;
-proto::program prog;
-proto::texture demo_tex;
+struct window_controller {
 
-proto::texture color_buffer;
-proto::framebuffer mem_frame;
+	proto::mesh quad;
+	proto::program prog;
+	proto::texture demo_tex;
 
-proto::mat4
-	model,
-	view,
-	projection;
+	proto::texture color_buffer;
+	proto::framebuffer mem_frame;
 
-void load_stuffs() {
+	proto::mat4
+		model,
+		view,
+		projection;
 
-	//color_buffer = proto::texture::create(nullptr, 512, 512, proto::texture_format::rgba);
+	bool is_loaded = false;
 
-	//mem_frame = proto::framebuffer::create(color_buffer);
+	shared_ptr < proto::window > win_ref;
 
-	//auto vs = proto::shader::compile(proto::shader_type::vertex, proto::get_file_content ("resources/basic_shader.vs"));
-	//auto ps = proto::shader::compile(proto::shader_type::pixel, proto::get_file_content("resources/basic_shader.ps"));
+	void load_stuffs() {
 
-	//prog = proto::program::link(vs, ps);
+		color_buffer = proto::texture::create(nullptr, 512, 512, proto::texture_format::rgba);
 
-	//quad = proto::mesh::create_quad (1.0F, proto::vec3{ .0F, .0F, -1.F });
+		mem_frame = proto::framebuffer::create(color_buffer);
 
-	//proto::mesh_builder builder;
+		auto vs = proto::shader::compile(proto::shader_type::vertex, proto::get_file_content ("resources/basic_shader.vs"));
+		auto ps = proto::shader::compile(proto::shader_type::pixel, proto::get_file_content("resources/basic_shader.ps"));
 
-	//uint16_t
-	//	i1 = builder.add_element({ { -.5F, .5F, .0F },{ .0F, .0F },{ .0F, .0F, -1.F } }),
-	//	i2 = builder.add_element({ { .5F, .5F, .0F },{ 1.F, .0F },{ .0F, .0F, -1.F } }),
-	//	i3 = builder.add_element({ { .5F, -.5F, .0F },{ .0F, 1.F },{ .0F, .0F, -1.F } }),
-	//	i4 = builder.add_element({ { -.5F, -.5F, .0F },{ 1.F, 1.F },{ .0F, .0F, -1.F } });
-	//
-	//builder.add_face({ i1, i2, i3 });
-	//builder.add_face({ i1, i3, i4 });
-	//
-	//quad = builder.make_mesh();
+		prog = proto::program::link(vs, ps);
 
-	//demo_tex = proto::texture::create_checkers( 32, 32, 4, 4 );
+		quad = proto::mesh::create_quad (1.0F, proto::vec3{ .0F, .0F, -1.F });
 
-	//model = proto::mat4::identity;
-	//view = proto::math::make_look_at(
-	//	proto::vec3{ .0, .0, -1. },
-	//	proto::vec3{ .0, 1., .0 },
-	//	proto::vec3{ .0, .0, .0 }
-	//);
+		demo_tex = proto::texture::create_checkers( 32, 32, 4, 4 );
 
-	//projection = proto::math::make_ortho(-1.0F, 1.0F, 1.0F, -1.0F, .0F, 100.0F);
+		projection = proto::math::make_ortho(-1.0F, 1.0F, 1.0F, -1.0F, .0F, 100.0F);
 
-	//model = proto::mat4::identity;
-	//view = proto::mat4::identity;
-	//projection = proto::mat4::identity;
+		model = proto::mat4::identity;
+		view = proto::mat4::identity;
+		projection = proto::mat4::identity;
 
-	//projection = proto::math::make_ortho(-1.0F, 1.0F, 1.0F, -1.0F, .0001F, 100.0F);
-	//r.set_viewport (0, 0, 512, 512);
-}
+	}
 
-void on_window_render(proto::window & w) {
-	//// swap framebuffer
-	//{
-	//	r.set_framebuffer(mem_frame);
-	//	r.clear({ .0F, 1.0F, .0F }, proto::clear_mask::color | proto::clear_mask::depth);
-	//	r.set_mesh(quad);
-	//	r.set_program(prog);
-	//	r.set_texture(demo_tex);
+	void on_window_update(proto::window & w) {
+		if (!is_loaded) {
+			load_stuffs();
+			is_loaded = true;
+		}
+	}
 
-	//	prog.set_value < int32_t >("uni_texture", 0);
+	void on_window_render(proto::window & w) {
+		proto::renderer r;
 
-	//	r.render_mesh(quad);
-	//	r.present();
-	//}
+		// swap framebuffer
+		{
+			r.set_framebuffer(mem_frame);
+			r.clear({ .0F, 1.0F, .0F }, proto::clear_mask::color | proto::clear_mask::depth);
+			r.set_mesh(quad);
+			r.set_program(prog);
+			r.set_texture(demo_tex);
 
-	//r.reset_framebuffer();
-	//r.clear({ .0F, .2F, .3F }, proto::clear_mask::color | proto::clear_mask::depth);
+			prog.set_value < int32_t >("uni_texture", 0);
 
-	//r.set_mesh(quad);
-	//r.set_program(prog);
-	//r.set_texture(color_buffer);
+			r.render_mesh(quad);
+			r.present();
+		}
 
-	//prog.set_value < int32_t > ("uni_texture", 0);
+		r.reset_framebuffer();
+		r.clear({ .0F, .2F, .3F }, proto::clear_mask::color | proto::clear_mask::depth);
 
-	//r.render_mesh(quad);
+		r.set_mesh(quad);
+		r.set_program(prog);
+		r.set_texture(color_buffer);
 
-	//r.present();
-}
+		prog.set_value < int32_t > ("uni_texture", 0);
 
-void on_window_update(proto::window & sender) {
+		r.render_mesh(quad);
 
-}
+		r.present();
+	}
 
-void on_window_close(proto::window & sender) {
+	window_controller(const shared_ptr < proto::window > & w) :
+		win_ref(w) 
+	{
+		win_ref->on_window_render += [this](proto::window & w) { on_window_render(w); };
+		win_ref->on_window_update += [this](proto::window & w) { on_window_update(w);};
+	}
 
-}
+};
 
 void close_callback() {
 	//quad = proto::mesh();
@@ -107,10 +101,7 @@ int main(int arg_c, char * arg_v[]) {
 		return -1;
 
 	auto w = proto::window::create("Tilling Proto", { 512, 512 });
-
-	w->on_window_render += on_window_render;
-	w->on_window_update += on_window_update;
-	w->on_window_close += on_window_close;
+	auto wc = window_controller(w);
 
 	//w->make_active(); // this should not be called, needed for glew
 	w->show();
@@ -121,8 +112,6 @@ int main(int arg_c, char * arg_v[]) {
 		glDisable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 	}
-
-	load_stuffs();
 
 	proto::main_loop();
 
