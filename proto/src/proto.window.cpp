@@ -3,6 +3,7 @@
 #include "proto.window_manager.h"
 #include "proto.debug.h"
 
+#include <memory>
 #include <utility>
 
 #include <SDL.h>
@@ -86,9 +87,11 @@ namespace proto {
 				on_window_hide.invoke(*this);
 				break;
 			case SDL_WINDOWEVENT_SIZE_CHANGED:
-				auto p = point{ sdl_e->window.data1, sdl_e->window.data2 };
-				on_window_resize.invoke(*this, p);
-				break;
+				{
+					auto p = point{ sdl_e->window.data1, sdl_e->window.data2 };
+					on_window_resize.invoke(*this, p);
+					break;
+				}
 				//	//Repaint on expose
 				//case SDL_WINDOWEVENT_EXPOSED:
 				//	SDL_RenderPresent(mRenderer);
@@ -133,7 +136,7 @@ namespace proto {
 				//	mMinimized = false;
 				//	break;
 
-					//Hide on close
+				//Hide on close
 			case SDL_WINDOWEVENT_CLOSE:
 				on_window_close.invoke(*this);
 				break;
@@ -157,10 +160,10 @@ namespace proto {
 			on_mouse_move.invoke(*this, args);
 			break;
 		}
-	}
+		}
 	}
 
-	window::window () : _implement (make_unique < window_imp> ())
+	window::window () : _implement (unique_ptr < window_imp > (new window_imp() ))
 	{}
 
 	window::~window () {}
