@@ -3,98 +3,93 @@
 
 #include <proto.h>
 
-proto::mesh quad;
-proto::program prog;
-proto::texture demo_tex;
+struct window_controller {
 
-proto::texture color_buffer;
-proto::framebuffer mem_frame;
+	proto::mesh quad;
+	proto::program prog;
+	proto::texture demo_tex;
 
-proto::mat4
-	model,
-	view,
-	projection;
+	proto::texture color_buffer;
+	proto::framebuffer mem_frame;
 
-void load_stuffs() {
+	proto::mat4
+		model,
+		view,
+		projection;
 
-	color_buffer = proto::texture::create(nullptr, 512, 512, proto::texture_format::rgba);
-	mem_frame = proto::framebuffer::create(color_buffer);
+	bool is_loaded = false;
 
-	auto vs = proto::shader::compile(proto::shader_type::vertex, proto::get_file_content ("resources/basic_shader.vs"));
-	auto ps = proto::shader::compile(proto::shader_type::pixel, proto::get_file_content("resources/basic_shader.ps"));
+	shared_ptr < proto::window > win_ref;
 
-	prog = proto::program::link(vs, ps);
+	void load_stuffs() {
 
-	quad = proto::mesh::create_quad (1.0F, proto::vec3{ .0F, .0F, -1.F });
+		color_buffer = proto::texture::create(nullptr, 512, 512, proto::texture_format::rgba);
 
-	//proto::mesh_builder builder;
+		mem_frame = proto::framebuffer::create(color_buffer);
 
-	//uint16_t
-	//	i1 = builder.add_element({ { -.5F, .5F, .0F },{ .0F, .0F },{ .0F, .0F, -1.F } }),
-	//	i2 = builder.add_element({ { .5F, .5F, .0F },{ 1.F, .0F },{ .0F, .0F, -1.F } }),
-	//	i3 = builder.add_element({ { .5F, -.5F, .0F },{ .0F, 1.F },{ .0F, .0F, -1.F } }),
-	//	i4 = builder.add_element({ { -.5F, -.5F, .0F },{ 1.F, 1.F },{ .0F, .0F, -1.F } });
-	//
-	//builder.add_face({ i1, i2, i3 });
-	//builder.add_face({ i1, i3, i4 });
-	//
-	//quad = builder.make_mesh();
+		auto vs = proto::shader::compile(proto::shader_type::vertex, proto::get_file_content ("resources/basic_shader.vs"));
+		auto ps = proto::shader::compile(proto::shader_type::pixel, proto::get_file_content("resources/basic_shader.ps"));
 
-	demo_tex = proto::texture::create_checkers(32, 32, 4, 4);
+		prog = proto::program::link(vs, ps);
 
-	model = proto::mat4::identity;
-	view = proto::math::make_look_at(
-		proto::vec3{ .0, .0, -1. },
-		proto::vec3{ .0, 1., .0 },
-		proto::vec3{ .0, .0, .0 }
-	);
+		quad = proto::mesh::create_quad (1.0F, proto::vec3{ .0F, .0F, -1.F });
 
-	projection = proto::math::make_ortho(-1.0F, 1.0F, 1.0F, -1.0F, .0F, 100.0F);
+		demo_tex = proto::texture::create_checkers( 32, 32, 4, 4 );
 
-	model = proto::mat4::identity;
-	view = proto::mat4::identity;
-	projection = proto::mat4::identity;
+		projection = proto::math::make_ortho(-1.0F, 1.0F, 1.0F, -1.0F, .0F, 100.0F);
 
-	//projection = proto::math::make_ortho(-1.0F, 1.0F, 1.0F, -1.0F, .0001F, 100.0F);
-	//r.set_viewport (0, 0, 512, 512);
-}
+		model = proto::mat4::identity;
+		view = proto::mat4::identity;
+		projection = proto::mat4::identity;
 
-void on_window_render(proto::window & w, proto::renderer & r) {
-	// swap framebuffer
-	{
-		r.set_framebuffer(mem_frame);
-		r.clear({ .0F, 1.0F, .0F }, proto::clear_mask::color | proto::clear_mask::depth);
+	}
+
+	void on_window_update(proto::window & w) {
+		if (!is_loaded) {
+			load_stuffs();
+			is_loaded = true;
+		}
+	}
+
+	void on_window_render(proto::window & w) {
+		proto::renderer r;
+
+		// swap framebuffer
+		{
+			r.set_framebuffer(mem_frame);
+			r.clear({ .0F, 1.0F, .0F }, proto::clear_mask::color | proto::clear_mask::depth);
+			r.set_mesh(quad);
+			r.set_program(prog);
+			r.set_texture(demo_tex);
+
+			prog.set_value < int32_t >("uni_texture", 0);
+
+			r.render_mesh(quad);
+			r.present();
+		}
+
+		r.reset_framebuffer();
+		r.clear({ .0F, .2F, .3F }, proto::clear_mask::color | proto::clear_mask::depth);
+
 		r.set_mesh(quad);
 		r.set_program(prog);
-		r.set_texture(demo_tex);
+		r.set_texture(color_buffer);
 
-		prog.set_value < int32_t >("uni_texture", 0);
+		prog.set_value < int32_t > ("uni_texture", 0);
 
 		r.render_mesh(quad);
+
 		r.present();
 	}
 
-	r.reset_framebuffer();
-	r.clear({ .0F, .2F, .3F }, proto::clear_mask::color | proto::clear_mask::depth);
+	window_controller(const shared_ptr < proto::window > & w) :
+		win_ref(w) 
+	{
+		win_ref->on_window_render += [this](proto::window & w) { on_window_render(w); };
+		win_ref->on_window_update += [this](proto::window & w) { on_window_update(w);};
+	}
 
-	r.set_mesh(quad);
-	r.set_program(prog);
-	r.set_texture(color_buffer);
-
-	prog.set_value < int32_t > ("uni_texture", 0);
-
-	r.render_mesh(quad);
-
-	r.present();
-}
-
-void on_window_update(proto::window & sender) {
-
-}
-
-void on_window_close(proto::window & sender) {
-
-}
+};
 
 void close_callback() {
 	//quad = proto::mesh();
@@ -102,28 +97,14 @@ void close_callback() {
 
 int main(int arg_c, char * arg_v[]) {
 
+	if (!proto::window_manager::initialize())
+		return -1;
+
 	auto w = proto::window::create("Tilling Proto", { 512, 512 });
+	auto wc = window_controller(w);
 
-	w->on_window_render += on_window_render;
-	w->on_window_update += on_window_update;
-	w->on_window_close += on_window_close;
-
-	w->make_active(); // this should not be called, needed for glew
+	//w->make_active(); // this should not be called, needed for glew
 	w->show();
-
-	// load graphics
-	// glew init should be automatic somewhere within proto
-	glewExperimental = true;
-	GLenum err = glewInit();
-
-	if (GLEW_OK != err) {
-		/* Problem: glewInit failed, something is seriously wrong. */
-		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
-		return err;
-	} else {
-		string gl_str_version = (const char *)glGetString(GL_VERSION);
-		debug_print << "opengl version: " << gl_str_version;
-	}
 
 	{
 		gl_error_guard("DEFAULT STARTUP FLAGS");
@@ -131,8 +112,6 @@ int main(int arg_c, char * arg_v[]) {
 		glDisable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 	}
-
-	load_stuffs();
 
 	proto::main_loop();
 
