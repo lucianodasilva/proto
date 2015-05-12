@@ -45,13 +45,14 @@ struct window_controller {
 	}
 
 	void on_window_update(proto::window & w) {
+	}
+
+	void on_window_render(proto::window & w) {
 		if (!is_loaded) {
 			load_stuffs();
 			is_loaded = true;
 		}
-	}
 
-	void on_window_render(proto::window & w) {
 		proto::renderer r;
 
 		// swap framebuffer
@@ -100,11 +101,14 @@ int main(int arg_c, char * arg_v[]) {
 	if (!proto::window_manager::initialize())
 		return -1;
 
-	auto w = proto::window::create("Tilling Proto", { 512, 512 });
-	auto wc = window_controller(w);
+	auto w1 = proto::window::create("Tilling Proto 1", { 512, 512 });
+	auto wc1 = window_controller(w1);
 
-	//w->make_active(); // this should not be called, needed for glew
-	w->show();
+	auto w2 = proto::window::create("Tilling Proto 2", { 512, 512 });
+	auto wc2 = window_controller(w2);
+
+	w1->show();
+	w2->show();
 
 	{
 		gl_error_guard("DEFAULT STARTUP FLAGS");

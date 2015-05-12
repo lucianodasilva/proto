@@ -182,13 +182,13 @@ namespace proto {
 
 	void window::close () {
 		if (_implement) {
-			_implement.release ();
+			_implement.reset ();
 		}
 	}
 
 	bool window::is_visible () const {
 		if (_implement)
-			return (SDL_GetWindowFlags (_implement->window) | SDL_WINDOW_SHOWN) == SDL_WINDOW_SHOWN;
+			return (SDL_GetWindowFlags (_implement->window) & SDL_WINDOW_SHOWN) == SDL_WINDOW_SHOWN;
 
 		return false;
 	}
