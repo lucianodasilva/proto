@@ -65,8 +65,8 @@ namespace proto {
 
 #	define debug_print proto::debug::debug_message ()
 		
+#endif
 	}
 }
 
-#endif
 #endif
