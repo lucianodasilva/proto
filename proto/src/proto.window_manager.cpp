@@ -11,15 +11,7 @@ using namespace std;
 
 namespace proto {
 
-	window_manager::window_manager ()
-	{}
-
 	window_manager::~window_manager() {}
-
-	window_manager & window_manager::instance () {
-		static window_manager manager;
-		return manager;
-	}
 
 	bool window_manager::initialize() {
 		window_manager & manager = instance();
