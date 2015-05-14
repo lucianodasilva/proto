@@ -1282,6 +1282,8 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS}")
   # libraries - do we need to consider this?
   #set(_INSTALL_LIBS "SDL2-static" ${_INSTALL_LIBS})
   target_link_libraries(SDL2-static ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
+
+  set (SDL_EXTRA_LIBS ${EXTRA_LIBS})
 #endif()
 
 ##### Installation targets #####

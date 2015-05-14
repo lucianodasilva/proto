@@ -25,5 +25,5 @@ include_directories(${demo_path})
 glob_code ( ${demo_path} source_files )
 
 add_executable(demo ${source_files})
-target_link_libraries(demo ${ADDITIONAL_LIBRARIES} proto glew)
+target_link_libraries(demo ${proto_dependencies} proto)
 

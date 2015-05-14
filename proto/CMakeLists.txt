@@ -39,8 +39,7 @@ include_directories (${proto_path}/include)
 
 add_library ( proto STATIC ${source_files} ${header_files})
 
-set ( proto_dependencies ${OPENGL_LIBRARIES} glew SDL2-static )
-
+set ( proto_dependencies ${SDL_EXTRA_LIBS} ${OPENGL_LIBRARIES} glew SDL2-static )
 
 target_link_libraries(proto ${proto_dependencies} )
 
