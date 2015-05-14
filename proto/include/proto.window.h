@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "proto.details.h"
+#include "proto.event.h"
 #include "proto.math.h"
 #include "proto.renderer.h"
 

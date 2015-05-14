@@ -7,9 +7,7 @@ namespace proto {
 	class singleton_base {
 	protected:
 
-		inline virtual void initialize() {};
-
-		inline singleton_base() { initialize(); }
+		inline singleton_base() {}
 
 	public:
 

@@ -29,14 +29,15 @@ namespace proto {
 
 	protected:
 
-		virtual void initialize() override;
+		friend class singleton_base < scheduler >;
+		scheduler();
 
 	public:
 
 		virtual ~scheduler();
 
 		template < class _ft_t, class ... _args_t >
-		static inline auto add_task(_ft_t && f, _args_t && ... args) 
+		static inline auto enqueue (_ft_t && f, _args_t && ... args) 
 			-> future < typename result_of < _ft_t (_args_t ...)>::type >
 		{
 			auto & s = instance();

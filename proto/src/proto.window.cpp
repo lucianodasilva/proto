@@ -138,7 +138,7 @@ namespace proto {
 
 				//Hide on close
 			case SDL_WINDOWEVENT_CLOSE:
-				on_window_close.invoke(*this);
+				on_window_close.sync_invoke(*this);
 				break;
 			}
 			break;

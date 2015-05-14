@@ -103,7 +103,7 @@ void close_callback() {
 
 int main(int arg_c, char * arg_v[]) {
 
-	proto::scheduler::add_task([] {
+	proto::scheduler::enqueue ([] {
 		std::cout << "hey there";
 	});
 

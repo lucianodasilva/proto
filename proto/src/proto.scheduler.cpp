@@ -12,9 +12,9 @@ namespace proto {
 			worker.join();
 	}
 
-	void scheduler::initialize () {
-		singleton_base::initialize();
-
+	scheduler::scheduler () :
+		singleton_base < scheduler > ()
+	{
 		_is_running = true;
 
 		auto thread_count = std::thread::hardware_concurrency();
