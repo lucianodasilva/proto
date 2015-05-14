@@ -1,17 +1,15 @@
 #include "proto.scheduler.h"
+#include <memory>
 
 namespace proto {
 
-	void thread_runner() {
-		while (scheduler::is_running()) {
-			scheduler::do_task();
-		}
-	}
-
 	scheduler::~scheduler() {
-		for (auto & t : _threads) {
-			t.join();
-		}
+		_is_running = false;
+
+		_condition.notify_all();
+
+		for (auto & worker : _workers)
+			worker.join();
 	}
 
 	void scheduler::initialize () {
@@ -21,30 +19,36 @@ namespace proto {
 
 		auto thread_count = std::thread::hardware_concurrency();
 
-		_threads.reserve(thread_count);
-
 		for (
-			decltype (thread_count) i = 0; 
-			i < thread_count; 
+			decltype (thread_count) i = 0;
+			i < thread_count;
 			++i
 		) {
-			_threads.push_back(thread(thread_runner));
+			_workers.emplace_back(
+				[this]
+				{
+					for (;;) {
+						task_t task;
+
+						{
+							unique_lock < mutex > lock(_task_mutex);
+							_condition.wait(
+								lock,
+								[this] { return !_is_running || !_tasks.empty();}
+							);
+
+							if (!_is_running && _tasks.empty())
+								return;
+
+							task = move(_tasks.front());
+							_tasks.pop();
+						}
+
+						task();
+					}
+				}
+			);
 		}
-
 	}
-
-	future < void > scheduler::add_task(function < void() > && f) {
-		auto & s = instance();
-
-		lock_guard < spin_mutex > work_list_lock(s._work_mutex);
-
-		s._work_queue.push_back(task(f));
-		return std::move(s._work_queue.back().get_future());
-	}
-
-	void scheduler::do_task() {
-
-	}
-
 
 }

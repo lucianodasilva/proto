@@ -4,6 +4,7 @@
 #include "proto.details.h"
 #include "proto.singleton.h"
 
+#include <queue>
 #include <vector>
 
 #include <atomic>
@@ -14,24 +15,16 @@ using namespace std;
 
 namespace proto {
 
-	enum struct task_type {
-		rendering,
-		main,
-		work
-	};
-
 	class scheduler : public singleton_base < scheduler > {
 	private:
 
-		using task = std::packaged_task < void() >;
+		using task_t = std::function < void() >;
 
-		vector < thread >	_threads;
+		vector < thread >	_workers;
+		queue < task_t >	_tasks;
 
-		vector < task >		_work_queue;
-		vector < task >		_active_work_list;
-
-		spin_mutex			_work_mutex;
-
+		mutex				_task_mutex;
+		condition_variable	_condition;
 		atomic < bool >		_is_running;
 
 	protected:
@@ -42,13 +35,33 @@ namespace proto {
 
 		virtual ~scheduler();
 
-		static inline bool is_running() {
-			return scheduler::instance()._is_running;
+		template < class _ft_t, class ... _args_t >
+		static inline auto add_task(_ft_t && f, _args_t && ... args) 
+			-> future < typename result_of < _ft_t (_args_t ...)>::type >
+		{
+			auto & s = instance();
+
+			using ret_t = typename result_of < _ft_t(_args_t ...)>::type;
+
+			auto task = make_shared < packaged_task < ret_t () > > (
+				bind(forward < _ft_t >(f), forward < _args_t >(args) ...)
+			);
+
+			future < ret_t > res = task->get_future();
+			{
+				unique_lock < mutex > lock(s._task_mutex);
+
+				if (!s._is_running)
+					throw std::runtime_error("added tasks on stopped scheduler");
+
+				s._tasks.emplace([task]() {
+					(*task)();
+				});
+			}
+
+			s._condition.notify_one();
+			return res;
 		}
-
-		static future < void > add_task(function < void() > && f);
-
-		static void do_task();
 
 	};
 
