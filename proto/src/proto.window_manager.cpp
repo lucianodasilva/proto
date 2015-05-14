@@ -11,15 +11,7 @@ using namespace std;
 
 namespace proto {
 
-	window_manager::window_manager ()
-	{}
-
 	window_manager::~window_manager() {}
-
-	window_manager & window_manager::instance () {
-		static window_manager manager;
-		return manager;
-	}
 
 	bool window_manager::initialize() {
 		window_manager & manager = instance();
@@ -87,11 +79,11 @@ namespace proto {
 					continue;
 				}
 
-				w_ptr->on_window_update.invoke (*w_ptr.get ());
+				w_ptr->on_window_update.sync_invoke (*w_ptr.get ());
 
 				if (w_ptr->is_visible ()) {
 					w_ptr->make_current ();
-					w_ptr->on_window_render.invoke (*w_ptr.get ());
+					w_ptr->on_window_render.sync_invoke (*w_ptr.get ());
 
 					w_ptr->swap_context();
 				}

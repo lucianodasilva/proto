@@ -3,6 +3,8 @@
 
 #include <proto.h>
 
+#include <thread>
+
 struct window_controller {
 
 	proto::mesh quad;
@@ -96,7 +98,14 @@ void close_callback() {
 	//quad = proto::mesh();
 }
 
+
+#include <proto.scheduler.h>
+
 int main(int arg_c, char * arg_v[]) {
+
+	proto::scheduler::enqueue ([] {
+		std::cout << "hey there";
+	});
 
 	if (!proto::window_manager::initialize())
 		return -1;

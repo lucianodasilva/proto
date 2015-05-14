@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "proto.details.h"
+#include "proto.singleton.h"
 #include "proto.math.h"
 
 
@@ -17,7 +18,7 @@ namespace proto {
 
 	class window;
 
-	class window_manager {
+	class window_manager : public singleton_base < window_manager > {
 	private:
 
 		shared_ptr < window >				_dummy_window;
@@ -27,8 +28,6 @@ namespace proto {
 		mutex								_new_mutex;
 		vector < shared_ptr < window > >	_new;
 
-		window_manager ();
-
 		void register_window(const shared_ptr < window > & w);
 
 		friend class window;
@@ -36,11 +35,6 @@ namespace proto {
 	public:
 
 		~window_manager();
-
-		window_manager (const window_manager &) = delete;
-		window_manager & operator = (const window_manager &) = delete;
-
-		static window_manager & instance ();
 
 		static bool initialize();
 		static void main_loop ();
