@@ -13,8 +13,8 @@ namespace proto {
 	public:
 		using handler_t = std::function < void(_sender_t &, _argv_tv & ...) >;
 	private:
-		mutable spin_mutex			_handler_mutex;
-		std::vector < handler_t >	_handlers;
+		mutable spin_mutex							_handler_mutex;
+		std::vector < shared_ptr < handler_t > >	_handlers;
 	public:
 
 		// force single instance / no copy
@@ -24,9 +24,16 @@ namespace proto {
 		inline event() {}
 
 		inline void sync_invoke(_sender_t & sender, _argv_tv & ... argv) const {
-			std::lock_guard < spin_mutex > lock(_handler_mutex);
-			for (auto & h : _handlers)
-				h(sender, argv ...);
+			std::vector < shared_ptr < handler_t > > handlers;
+
+			{
+				std::lock_guard < spin_mutex > lock(_handler_mutex);
+				// copy handlers to avoid dead locks
+				handlers = _handlers;
+			}
+
+			for (auto & h : handlers)
+				h->operator ()(sender, argv ...);
 		}
 
 		inline void invoke(_sender_t & sender, _argv_tv & ... argv) const {
@@ -35,15 +42,19 @@ namespace proto {
 			});
 		}
 
-		inline void operator += (const handler_t & handler) {
-			handlers.emplace_back(handler);
+		inline void operator += (handler_t && handler) {
+			lock_guard < spin_mutex > lock(_handler_mutex);
+			handlers.emplace_back(
+				make_shared < handler_t > (forward (handler))
+			);
 		}
 
-		inline void operator -= (const handler_t & handler) {
-			auto it = std::find(
+		inline void operator -= (handler_t && handler) {
+			lock_guard < spin_mutex > lock(_handler_mutex);
+			auto it = find(
 				handlers.begin(),
 				handlers.end(),
-				handler
+				forward (handler)
 				);
 
 			if (it != handlers.end())
@@ -56,8 +67,8 @@ namespace proto {
 	public:
 		using handler_t = std::function < void(_sender_t &) >;
 	private:
-		mutable spin_mutex			_handler_mutex;
-		std::vector < handler_t >	_handlers;
+		mutable spin_mutex					_handler_mutex;
+		vector < shared_ptr < handler_t > >	_handlers;
 	public:
 
 		// force single instance / no copy
@@ -67,9 +78,15 @@ namespace proto {
 		inline event() {}
 
 		inline void sync_invoke(_sender_t & sender) const {
-			std::lock_guard < spin_mutex > lock(_handler_mutex);
+			vector < shared_ptr < handler_t > > handlers;
+
+			{
+				lock_guard < spin_mutex > lock(_handler_mutex);
+				handlers = _handlers;
+			}
+
 			for (auto & h : _handlers)
-				h(sender);
+				h->operator ()(sender);
 		}
 
 		inline void invoke(_sender_t & sender) const {
@@ -78,17 +95,19 @@ namespace proto {
 			});
 		}
 
-		inline void operator += (const handler_t & handler) {
-			std::lock_guard < spin_mutex > lock(_handler_mutex);
-			_handlers.emplace_back(handler);
+		inline void operator += (handler_t && handler) {
+			lock_guard < spin_mutex > lock(_handler_mutex);
+			_handlers.emplace_back(
+				make_shared < handler_t > (forward < handler_t >(handler))
+			);
 		}
 
-		inline void operator -= (const handler_t & handler) {
-			std::lock_guard < spin_mutex > lock(_handler_mutex);
-			auto it = std::find(
+		inline void operator -= (handler_t && handler) {
+			lock_guard < spin_mutex > lock(_handler_mutex);
+			auto it = find(
 				_handlers.begin(),
 				_handlers.end(),
-				handler
+				forward (handler)
 				);
 
 			if (it != _handlers.end())

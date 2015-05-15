@@ -2,6 +2,7 @@
 #define _proto_scheduler_h_
 
 #include "proto.details.h"
+#include "proto.dispatcher.h"
 #include "proto.singleton.h"
 
 #include <queue>
@@ -17,8 +18,6 @@ namespace proto {
 
 	class scheduler : public singleton_base < scheduler > {
 	private:
-
-		using task_t = std::function < void() >;
 
 		vector < thread >	_workers;
 		queue < task_t >	_tasks;

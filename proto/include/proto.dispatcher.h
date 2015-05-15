@@ -25,12 +25,14 @@ non mutable data ( kernel data )
 
 namespace proto {
 
-	class dispatcher {
+	using task_t = std::function < void() >;
+
+	class idispatcher {
 	private:
 
 	public:
 
-
+		virtual void enqueue (task_t && t) = 0;
 
 	};
 	
