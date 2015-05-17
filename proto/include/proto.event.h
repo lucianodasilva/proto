@@ -44,7 +44,7 @@ namespace proto {
 
 		inline void operator += (handler_t && handler) {
 			lock_guard < spin_mutex > lock(_handler_mutex);
-			handlers.emplace_back(
+			_handlers.emplace_back(
 				make_shared < handler_t > (forward (handler))
 			);
 		}
@@ -52,13 +52,13 @@ namespace proto {
 		inline void operator -= (handler_t && handler) {
 			lock_guard < spin_mutex > lock(_handler_mutex);
 			auto it = find(
-				handlers.begin(),
-				handlers.end(),
+				_handlers.begin(),
+				_handlers.end(),
 				forward (handler)
 				);
 
-			if (it != handlers.end())
-				handlers.erase(it);
+			if (it != _handlers.end())
+				_handlers.erase(it);
 		}
 	};
 

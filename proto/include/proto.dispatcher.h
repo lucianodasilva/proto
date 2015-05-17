@@ -33,6 +33,8 @@ namespace proto {
 	public:
 
 		virtual void enqueue (task_t && t) = 0;
+		
+		virtual void operator () () = 0;
 
 	};
 	

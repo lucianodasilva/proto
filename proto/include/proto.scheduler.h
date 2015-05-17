@@ -3,9 +3,11 @@
 
 #include "proto.details.h"
 #include "proto.dispatcher.h"
+#include "proto.id.h"
 #include "proto.singleton.h"
 
 #include <queue>
+#include <map>
 #include <vector>
 
 #include <atomic>
@@ -18,6 +20,9 @@ namespace proto {
 
 	class scheduler : public singleton_base < scheduler > {
 	private:
+		
+		map < id_t, shared_ptr < idispatcher > >
+							_dispatchers;
 
 		vector < thread >	_workers;
 		queue < task_t >	_tasks;
