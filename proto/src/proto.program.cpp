@@ -75,9 +75,9 @@ namespace proto {
 			char * name_copy = new char [name_len + 1];
 			std::strcpy (name_copy, +name);
 
-			id_t id = create_id (name_copy);
+			id_t id = make_id (name_copy);
 		#else
-			id_t id = create_id (name);
+			id_t id = make_id (name);
 		#endif
 
 			new_p._uniforms [id] = location;

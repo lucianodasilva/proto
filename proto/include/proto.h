@@ -5,6 +5,8 @@
 
 #include "proto.color.h"
 #include "proto.debug.h"
+#include "proto.details.h"
+#include "proto.event.h"
 #include "proto.formats.h"
 #include "proto.framebuffer.h"
 #include "proto.id.h"
@@ -14,6 +16,8 @@
 #include "proto.program.h"
 #include "proto.renderer.h"
 #include "proto.shader.h"
+#include "proto.singleton_base.h"
+#include "proto.scheduler.h"
 #include "proto.stopwatch.h"
 #include "proto.texture.h"
 #include "proto.window.h"
