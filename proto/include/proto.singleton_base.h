@@ -1,5 +1,5 @@
-#ifndef _proto_singleton_h_
-#define _proto_singleton_h_
+#ifndef _proto_singleton_base_h_
+#define _proto_singleton_base_h_
 
 namespace proto {
 

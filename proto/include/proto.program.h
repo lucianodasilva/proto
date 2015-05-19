@@ -93,7 +93,7 @@ namespace proto {
 		template < class _t >
 		inline void set_value (const char * uniform_name, const _t & v) {
 			set_value (
-				get_uniform (create_id (uniform_name)),
+				get_uniform (make_id (uniform_name)),
 				v
 			);
 		}

@@ -98,14 +98,7 @@ void close_callback() {
 	//quad = proto::mesh();
 }
 
-
-#include <proto.scheduler.h>
-
 int main(int arg_c, char * arg_v[]) {
-
-	proto::scheduler::enqueue ([] {
-		std::cout << "hey there";
-	});
 
 	if (!proto::window_manager::initialize())
 		return -1;
@@ -126,7 +119,7 @@ int main(int arg_c, char * arg_v[]) {
 		glCullFace(GL_BACK);
 	}
 
-	proto::main_loop();
+	proto::scheduler::instance().main.run();
 
 	return 0;
 }

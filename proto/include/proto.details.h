@@ -12,6 +12,17 @@
 
 namespace proto {
 
+	class non_copyable {
+	protected:
+		non_copyable() {}
+		~non_copyable() {}
+	public:
+
+		non_copyable(const non_copyable &) = delete;
+		non_copyable & operator = (const non_copyable &) = delete;
+
+	};
+
 	struct spin_mutex {
 	private:
 		std::atomic_flag _lockless_flag = ATOMIC_FLAG_INIT;

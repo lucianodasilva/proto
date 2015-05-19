@@ -37,7 +37,7 @@ namespace proto {
 		}
 
 		inline void invoke(_sender_t & sender, _argv_tv & ... argv) const {
-			scheduler::enqueue([this, &sender, &argv...] {
+			scheduler::instance ().events.enqueue([this, &sender, &argv...] {
 				sync_invoke(sender, argv...);
 			});
 		}
@@ -90,7 +90,7 @@ namespace proto {
 		}
 
 		inline void invoke(_sender_t & sender) const {
-			scheduler::enqueue([this, &sender] {
+			scheduler::instance ().events.enqueue ([this, &sender] {
 				sync_invoke(sender);
 			});
 		}

@@ -48,63 +48,56 @@ namespace proto {
 		return true;
 	}
 
-	void window_manager::main_loop () {
+	bool window_manager::handle_windows () {
+		SDL_Event e;
 
-		window_manager & manager = instance ();
+		// empty event pool
+		while (SDL_PollEvent(&e)) {
+			for (auto & w : _windows) {
+				w->handle_event(&e);
+			}
+		}
 
-		vector < vector < shared_ptr < window > >::iterator >
-			death_row;
+		for (
+			auto w_it = _windows.begin ();
+			w_it != _windows.end ();
+			++w_it
+		) {
 
-		do {
+			auto & w_ptr = *w_it;
 
-			SDL_Event e;
-
-			// empty event pool
-			while (SDL_PollEvent(&e)) {
-				for (auto & w : manager._windows) {
-					w->handle_event(&e);
-				}
+			if (w_ptr->is_closed ()) {
+				_window_death_row.push_back (w_it);
+				continue;
 			}
 
-			for (
-				auto w_it = manager._windows.begin ();
-				w_it != manager._windows.end ();
-				++w_it
-			) {
+			w_ptr->on_window_update.sync_invoke (*w_ptr.get ());
 
-				auto & w_ptr = *w_it;
+			if (w_ptr->is_visible ()) {
+				w_ptr->make_current ();
+				w_ptr->on_window_render.sync_invoke (*w_ptr.get ());
 
-				if (w_ptr->is_closed ()) {
-					death_row.push_back (w_it);
-					continue;
-				}
+				w_ptr->swap_context();
+			}
+		}
 
-				w_ptr->on_window_update.sync_invoke (*w_ptr.get ());
-
-				if (w_ptr->is_visible ()) {
-					w_ptr->make_current ();
-					w_ptr->on_window_render.sync_invoke (*w_ptr.get ());
-
-					w_ptr->swap_context();
-				}
+		{
+			for (auto & win_it : _window_death_row) {
+				_windows.erase (win_it);
 			}
 
-			{
-				for (auto & win_it : death_row) {
-					manager._windows.erase (win_it);
-				}
+			_window_death_row.clear ();
 
-				death_row.clear ();
+			lock_guard < mutex > new_lock (_new_mutex);
 
-				lock_guard < mutex > new_lock (manager._new_mutex);
-
-				for (auto & w_it : manager._new) {
-					manager._windows.push_back (w_it);
-				}
-
-				manager._new.clear ();
+			for (auto & w_it : _new) {
+				_windows.push_back (w_it);
 			}
-		} while (manager._windows.size () > 1 /* cause of the dummy window */);
+
+			_new.clear ();
+		}
+
+		return _windows.size () > 1 /* cause of the dummy window */;
 	}
 
 	void window_manager::register_window (const shared_ptr < window > & w) {

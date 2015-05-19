@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "proto.details.h"
-#include "proto.singleton.h"
+#include "proto.singleton_base.h"
 #include "proto.math.h"
 
 
@@ -24,6 +24,9 @@ namespace proto {
 		shared_ptr < window >				_dummy_window;
 
 		vector < shared_ptr < window > >	_windows;
+		vector < vector < shared_ptr < window > >::iterator >
+											_window_death_row;
+
 
 		mutex								_new_mutex;
 		vector < shared_ptr < window > >	_new;
@@ -37,13 +40,11 @@ namespace proto {
 		~window_manager();
 
 		static bool initialize();
-		static void main_loop ();
+
+		bool handle_windows ();
 
 	};
 
-	inline void main_loop () {
-		window_manager::instance ().main_loop ();
-	}
 
 }
 

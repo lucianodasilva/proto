@@ -31,7 +31,7 @@ namespace proto {
 		const char *	text;
 	};
 
-	inline id_t create_id (const char * v) {
+	inline id_t make_id (const char * v) {
 		return id_t { (uint32_t)details::hash (v), v };
 	}
 
@@ -53,7 +53,7 @@ namespace proto {
 
 	using id_t = uint32_t;
 
-	inline id_t create_id (const char * v) {
+	inline id_t make_id (const char * v) {
 		return id_t { (uint32_t)details::hash (v) };
 	}
 

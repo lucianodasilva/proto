@@ -2,34 +2,72 @@
 #define _proto_scheduler_h_
 
 #include "proto.details.h"
-#include "proto.dispatcher.h"
 #include "proto.id.h"
-#include "proto.singleton.h"
+#include "proto.singleton_base.h"
 
-#include <queue>
-#include <map>
-#include <vector>
-
-#include <atomic>
 #include <future>
+#include <queue>
 #include <thread>
+#include <vector>
 
 using namespace std;
 
 namespace proto {
 
-	class scheduler : public singleton_base < scheduler > {
+	using scheduler_task = function < void() >;
+
+	class scheduler_base {
+	protected:
+
+		queue < scheduler_task >	_tasks;
+
+		mutex						_task_mutex;
+		condition_variable			_condition;
+		atomic < bool >				_is_running;
+
+		scheduler_base ();
+
+	public:
+
+		virtual ~scheduler_base();
+
+		template < class _ft_t, class ... _args_t >
+		inline auto enqueue(_ft_t && f, _args_t && ... args)
+			-> future < typename result_of < _ft_t(_args_t ...)>::type >
+		{
+
+			using ret_t = typename result_of < _ft_t(_args_t ...)>::type;
+
+			auto task = make_shared < packaged_task < ret_t() > >(
+				bind(forward < _ft_t >(f), forward < _args_t >(args) ...)
+				);
+
+			future < ret_t > res = task->get_future();
+			{
+				unique_lock < mutex > lock(_task_mutex);
+
+				if (!_is_running)
+					throw std::runtime_error("added tasks on stopped scheduler");
+
+				_tasks.emplace([task]() {
+					(*task)();
+				});
+			}
+
+			_condition.notify_one();
+			return res;
+		}
+
+
+	};
+
+	class scheduler :
+		public singleton_base < scheduler >,
+		public scheduler_base
+	{
 	private:
-		
-		map < id_t, shared_ptr < idispatcher > >
-							_dispatchers;
 
 		vector < thread >	_workers;
-		queue < task_t >	_tasks;
-
-		mutex				_task_mutex;
-		condition_variable	_condition;
-		atomic < bool >		_is_running;
 
 	protected:
 
@@ -41,32 +79,32 @@ namespace proto {
 		virtual ~scheduler();
 
 		template < class _ft_t, class ... _args_t >
-		static inline auto enqueue (_ft_t && f, _args_t && ... args) 
-			-> future < typename result_of < _ft_t (_args_t ...)>::type >
+		static inline auto enqueue(_ft_t && f, _args_t && ... args)
+			-> future < typename result_of < _ft_t(_args_t ...)>::type >
 		{
 			auto & s = instance();
-
-			using ret_t = typename result_of < _ft_t(_args_t ...)>::type;
-
-			auto task = make_shared < packaged_task < ret_t () > > (
-				bind(forward < _ft_t >(f), forward < _args_t >(args) ...)
-			);
-
-			future < ret_t > res = task->get_future();
-			{
-				unique_lock < mutex > lock(s._task_mutex);
-
-				if (!s._is_running)
-					throw std::runtime_error("added tasks on stopped scheduler");
-
-				s._tasks.emplace([task]() {
-					(*task)();
-				});
-			}
-
-			s._condition.notify_one();
-			return res;
+			return static_cast <dispatcher_base &> (s).enqueue(f, args...);
 		}
+
+		class event_scheduler : public scheduler_base, non_copyable {
+		private:
+			thread _thread;
+		public:
+			event_scheduler();
+			virtual ~event_scheduler();
+		};
+
+		class main_scheduler : public scheduler_base, non_copyable {
+		public:
+			main_scheduler();
+			virtual ~main_scheduler();
+
+			void run ();
+
+		};
+
+		event_scheduler events;
+		main_scheduler main;
 
 	};
 
