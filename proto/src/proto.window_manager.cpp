@@ -11,23 +11,28 @@ using namespace std;
 
 namespace proto {
 
+	window_manager::window_manager() : singleton_base < window_manager >() {
+		initialize();
+	}
+
 	window_manager::~window_manager() {}
 
-	bool window_manager::initialize() {
-		window_manager & manager = instance();
+	void window_manager::initialize() {
 
 		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 			debug_print << "failed to initialize SDL system";
-			return false;
+			return;
 		}
 
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 		
-		// make dummy window
-		manager._dummy_window = proto::window::create("", { 10, 10 });
-		manager._dummy_window->make_current();
+		// make dummy window ( avoid deadlocking window instance )
+		_dummy_window = proto::window::create_window_instance ("", { 10, 10 });
+		register_window(_dummy_window);
+
+		_dummy_window->make_current();
 
 		glewExperimental = true;
 		GLenum err = glewInit();
@@ -35,7 +40,7 @@ namespace proto {
 		if (GLEW_OK != err) {
 			/* Problem: glewInit failed, something is seriously wrong. */
 			debug_print << "failed to initialize glew with error: " << glewGetErrorString(err);
-			return false;
+			return;
 		}
 		else {
 			string gl_str_version = (const char *)glGetString(GL_VERSION);
@@ -44,8 +49,6 @@ namespace proto {
 
 		// should perhaps setup VSync with the following code
 		// SDL_GL_SetSwapInterval(1)
-
-		return true;
 	}
 
 	bool window_manager::handle_windows () {
@@ -100,7 +103,7 @@ namespace proto {
 		return _windows.size () > 1 /* cause of the dummy window */;
 	}
 
-	void window_manager::register_window (const shared_ptr < window > & w) {
+	void window_manager::register_window ( shared_ptr < window > w) {
 		lock_guard < mutex > lock (_new_mutex);
 		_new.emplace_back (w);
 	}

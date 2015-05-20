@@ -68,6 +68,8 @@ namespace proto {
 		using external_event = void *;
 		void handle_event(external_event e);
 
+		static shared_ptr < window > create_window_instance(const char * title, const point & size_v);
+
 	public:
 		
 		window ();

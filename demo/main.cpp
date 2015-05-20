@@ -85,8 +85,8 @@ struct window_controller {
 		r.present();
 	}
 
-	window_controller(const shared_ptr < proto::window > & w) :
-		win_ref(w) 
+	window_controller(shared_ptr < proto::window > win) :
+		win_ref(win) 
 	{
 		win_ref->on_window_render += [this](proto::window & w) { on_window_render(w); };
 		win_ref->on_window_update += [this](proto::window & w) { on_window_update(w);};
@@ -99,9 +99,6 @@ void close_callback() {
 }
 
 int main(int arg_c, char * arg_v[]) {
-
-	if (!proto::window_manager::initialize())
-		return -1;
 
 	auto w1 = proto::window::create("Tilling Proto 1", { 512, 512 });
 	auto wc1 = window_controller(w1);

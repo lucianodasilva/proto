@@ -139,6 +139,7 @@ namespace proto {
 				//Hide on close
 			case SDL_WINDOWEVENT_CLOSE:
 				on_window_close.sync_invoke(*this);
+				close();
 				break;
 			}
 			break;
@@ -217,7 +218,7 @@ namespace proto {
 			SDL_GL_MakeCurrent(_implement->window, _implement->gl_context);
 	}
 
-	std::shared_ptr < window > window::create (const char * title, const point & size_v) {
+	std::shared_ptr < window > window::create_window_instance (const char * title, const point & size_v) {
 
 		auto inst = make_shared < window >();
 
@@ -231,7 +232,8 @@ namespace proto {
 		);
 
 		if (!inst->_implement->window) {
-			// handle failure
+			debug_print << "failed to create window instance";
+			return nullptr;
 		}
 
 		inst->_implement->sdl_renderer = SDL_CreateRenderer(
@@ -242,23 +244,27 @@ namespace proto {
 		);
 
 		if (!inst->_implement->sdl_renderer) {
-			// handle failure
+			debug_print << "failed to create sdl renderer instance";
+			return nullptr;
 		}
 
 		inst->_implement->gl_context = SDL_GL_CreateContext(inst->_implement->window);
 
 		if (!inst->_implement->gl_context) {
-			// handle failure
+			debug_print << "failed to create window gl context instance";
+			return nullptr;
 		}
 
 		inst->_implement->window_id = SDL_GetWindowID(inst->_implement->window);
 
-		window_manager::instance().register_window(inst);
+		return inst;
+	}
 
-		// respond to operating system close (HACK)
-		inst->on_window_close += [](window & sender) {
-			sender.close ();
-		};
+	std::shared_ptr < window > window::create (const char * title, const point & size_v) {
+		auto & w_manager = window_manager::instance(); // force initialization of the singleton
+
+		auto inst = create_window_instance(title, size_v);
+		w_manager.register_window(inst);
 
 		return inst;
 	}

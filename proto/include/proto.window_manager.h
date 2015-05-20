@@ -27,19 +27,23 @@ namespace proto {
 		vector < vector < shared_ptr < window > >::iterator >
 											_window_death_row;
 
-
 		mutex								_new_mutex;
 		vector < shared_ptr < window > >	_new;
 
-		void register_window(const shared_ptr < window > & w);
+		void register_window(shared_ptr < window > w);
 
 		friend class window;
+
+	protected:
+		
+		friend class singleton_base < window_manager >;
+		window_manager();
 
 	public:
 
 		~window_manager();
 
-		static bool initialize();
+		void initialize();
 
 		bool handle_windows ();
 
