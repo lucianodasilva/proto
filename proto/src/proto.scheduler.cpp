@@ -107,20 +107,25 @@ namespace proto {
 		for (;;) {
 			scheduler_task task;
 
+			for (;;)
 			{
-				unique_lock < mutex > lock(scheduler_base::_task_mutex);
+				{
+					unique_lock < mutex > lock(scheduler_base::_task_mutex);
 
-				if (!scheduler_base::_is_running && scheduler_base::_tasks.empty())
-					return;
+					if (!scheduler_base::_is_running && scheduler_base::_tasks.empty())
+						return;
 
-				if (!scheduler_base::_tasks.empty()) {
-					task = move(scheduler_base::_tasks.front());
-					scheduler_base::_tasks.pop();
+					if (!scheduler_base::_tasks.empty()) {
+						task = move(scheduler_base::_tasks.front());
+						scheduler_base::_tasks.pop();
+					}
 				}
-			}
 
-			if (task)
+				if (!task)
+					break;
+
 				task();
+			}
 
 			if (_is_running && !window_manager::instance().handle_windows()) {
 				_is_running = false;
