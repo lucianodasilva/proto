@@ -14,7 +14,10 @@ namespace proto {
 		friend class singleton_base < event_scheduler >;
 		event_scheduler();
 	public:
-		~event_scheduler();
+
+		virtual bool contains_thread(const thread::id & id) const;
+
+		virtual ~event_scheduler();
 
 		template < class _ft_t, class ... _args_t >
 		static inline auto enqueue(_ft_t && f, _args_t && ... args)

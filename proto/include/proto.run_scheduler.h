@@ -8,7 +8,11 @@
 namespace proto {
 
 	class run_scheduler : public scheduler_base {
+	private:
+		thread::id _thread_id;
 	public:
+
+		virtual bool contains_thread (const thread::id & id) const;
 
 		run_scheduler();
 

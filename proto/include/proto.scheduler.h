@@ -29,6 +29,8 @@ namespace proto {
 
 	public:
 
+		virtual bool contains_thread (const thread::id & id) const = 0;
+
 		virtual ~scheduler_base();
 
 		template < class _ft_t, class ... _args_t >
@@ -76,6 +78,7 @@ namespace proto {
 
 	public:
 
+		virtual bool contains_thread(const thread::id & id) const;
 		virtual ~scheduler();
 
 		template < class _ft_t, class ... _args_t >

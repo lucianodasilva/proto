@@ -32,6 +32,10 @@ namespace proto {
 		});
 	}
 
+	bool event_scheduler::contains_thread(const thread::id & id) const {
+		return _thread.get_id() == id;
+	}
+
 	event_scheduler::~event_scheduler() {
 		scheduler_base::~scheduler_base();
 		_thread.join();

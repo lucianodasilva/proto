@@ -61,4 +61,12 @@ namespace proto {
 		}
 	}
 
+	bool scheduler::contains_thread(const thread::id & id) const {
+		for (auto & t : _workers)
+			if (t.get_id() == id)
+				return true;
+
+		return false;
+	}
+
 }

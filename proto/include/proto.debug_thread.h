@@ -6,13 +6,13 @@
 
 #ifdef _DEBUG
 
-#define proto_thread_guard(thread, message)
+#define proto_scheduler_guard(scheduler, message)
 
 #else
 
-#define proto_thread_guard(thread, message) \
-if (std::this_thread::get_id () != thread_instance.get_id()) { \
-	debug_print << "thread break: " << message; \
+#define proto_scheduler_guard(scheduler, message) \
+if (scheduler.containd_thread (std::this_thread::get_id ())) { \
+	debug_print << "scheduler break: " << message; \
 	proto_debug_break (); \
 }
 

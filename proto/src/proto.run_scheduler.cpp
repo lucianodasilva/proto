@@ -4,12 +4,18 @@
 
 namespace proto {
 
+	bool run_scheduler::contains_thread(const thread::id & id) const {
+		return id == _thread_id;
+	}
+
 	run_scheduler::run_scheduler() 
 		: scheduler_base() 
 	{}
 
 	void run_scheduler::run( const function < void ( run_scheduler & ) > & callback ) {
-		
+		_thread_id = this_thread::get_id();
+		_is_running = true;
+
 		for (;;) {
 
 			scheduler_task task;
