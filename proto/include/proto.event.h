@@ -4,7 +4,7 @@
 #define _proto_event_h_
 
 #include "proto.details.h"
-#include "proto.scheduler.h"
+#include "proto.event_scheduler.h"
 
 namespace proto {
 
@@ -37,7 +37,7 @@ namespace proto {
 		}
 
 		inline void invoke(_sender_t & sender, _argv_tv & ... argv) const {
-			scheduler::instance ().events.enqueue([this, &sender, &argv...] {
+			event_scheduler::enqueue ([this, &sender, &argv...] {
 				sync_invoke(sender, argv...);
 			});
 		}
@@ -90,7 +90,7 @@ namespace proto {
 		}
 
 		inline void invoke(_sender_t & sender) const {
-			scheduler::instance ().events.enqueue ([this, &sender] {
+			event_scheduler::enqueue ([this, &sender] {
 				sync_invoke(sender);
 			});
 		}

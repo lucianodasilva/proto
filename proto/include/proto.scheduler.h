@@ -86,26 +86,6 @@ namespace proto {
 			return static_cast <dispatcher_base &> (s).enqueue(f, args...);
 		}
 
-		class event_scheduler : public scheduler_base, non_copyable {
-		private:
-			thread _thread;
-		public:
-			event_scheduler();
-			virtual ~event_scheduler();
-		};
-
-		class main_scheduler : public scheduler_base, non_copyable {
-		public:
-			main_scheduler();
-			virtual ~main_scheduler();
-
-			void run ();
-
-		};
-
-		event_scheduler events;
-		main_scheduler main;
-
 	};
 
 }

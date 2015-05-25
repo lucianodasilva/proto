@@ -116,7 +116,11 @@ int main(int arg_c, char * arg_v[]) {
 		glCullFace(GL_BACK);
 	}
 
-	proto::scheduler::instance().main.run();
+	proto::run_scheduler().run([](proto::run_scheduler & s) {
+		if (!proto::window_manager::instance().handle_windows ()) {
+			s.stop();
+		}
+	});
 
 	return 0;
 }
