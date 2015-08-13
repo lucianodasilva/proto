@@ -3,7 +3,7 @@
 #ifndef	_proto_shader_h_
 #define _proto_shader_h_
 
-#include <GL/glew.h>
+#include "proto.gl.h"
 #include <string>
 #include <cinttypes>
 

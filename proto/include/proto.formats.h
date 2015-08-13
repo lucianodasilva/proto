@@ -4,7 +4,7 @@
 #define _proto_formats_h_
 
 #include <cinttypes>
-#include <GL/glew.h>
+#include "proto.gl.h"
 
 namespace proto {
 

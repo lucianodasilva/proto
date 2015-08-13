@@ -23,14 +23,33 @@ struct window_controller {
 
 	shared_ptr < proto::window > win_ref;
 
-	void load_stuffs() {
+	proto::expected < void > load_stuffs() {
+
+		// define auto cleanup
+		auto stuff_failed_cleanup = proto::scope_guard([&] {
+			color_buffer = proto::texture();
+			mem_frame = proto::framebuffer();
+			prog = proto::program();
+			quad = proto::mesh();
+			demo_tex = proto::texture();
+		});
 
 		color_buffer = proto::texture::create(nullptr, 512, 512, proto::texture_format::rgba);
 
 		mem_frame = proto::framebuffer::create(color_buffer);
 
-		auto vs = proto::shader::compile(proto::shader_type::vertex, proto::get_file_content ("resources/basic_shader.vs"));
-		auto ps = proto::shader::compile(proto::shader_type::pixel, proto::get_file_content("resources/basic_shader.ps"));
+		auto e_vs = proto::get_file_content("resources/basic_shared.vs");
+
+		if (!e_vs)
+			return e_vs.get_exception ();
+
+		auto vs = proto::shader::compile(proto::shader_type::vertex, e_vs.get ());
+
+		auto e_ps = proto::get_file_content("resources/basic_shader.ps");
+		if (!e_ps)
+			return e_ps.get_exception ();
+
+		auto ps = proto::shader::compile(proto::shader_type::pixel, e_ps.get ());
 
 		prog = proto::program::link(vs, ps);
 
@@ -44,6 +63,10 @@ struct window_controller {
 		view = proto::mat4::identity;
 		projection = proto::mat4::identity;
 
+		// All ok. Dismiss cleanup.
+		stuff_failed_cleanup.dismiss();
+
+		return{};
 	}
 
 	void on_window_update(proto::window & w) {

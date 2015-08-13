@@ -3,7 +3,7 @@
 #ifndef	_proto_program_h_
 #define _proto_program_h_
 
-#include <GL/glew.h>
+#include "proto.gl.h"
 #include <map>
 
 #include "proto.id.h"

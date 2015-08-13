@@ -6,7 +6,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
-#include <GL/glew.h>
+#include "proto.gl.h"
 
 #include "proto.details.h"
 #include "proto.debug_break.h"

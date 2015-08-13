@@ -4,31 +4,31 @@ project (proto)
 
 set ( proto_path ${CMAKE_CURRENT_LIST_DIR})
 
-include ( ${proto_path}/deps/glew/CMakeLists.txt )
-add_definitions(-DGLEW_STATIC)
+# add dependencies ############################
 
+# add glew
+add_subdirectory ( ${proto_path}/deps/glew/ )
+include_directories ( ${proto_path}/deps/glew/include )
 set_property (TARGET glew PROPERTY FOLDER "deps")
 
-# setup sdl for "proto"
-set (SDL_ATOMIC OFF CACHE BOOL "" FORCE)
-set (SDL_AUDIO OFF CACHE BOOL "" FORCE)
-set (SDL_HAPTIC OFF CACHE BOOL "" FORCE)
-set (SDL_JOYSTICK OFF CACHE BOOL "" FORCE)
-set (SDL_PTHREADS OFF CACHE BOOL "" FORCE)
-set (SDL_THREADS OFF CACHE BOOL "" FORCE)
-set (SDL_TIMERS OFF CACHE BOOL "" FORCE)
+# preconfigure glfw
+set (GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set (GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set (GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set (GLFW_DOCUMENT_INTERNALS OFF CACHE BOOL "" FORCE)
+set (GLFW_INSTALL OFF CACHE BOOL "" FORCE)
+#set (GLFW_LIBRARIES OFF CACHE BOOL "" FORCE)
+set (GLFW_USE_DWM_SWAP_INTERVAL OFF CACHE BOOL "" FORCE)
+set (GLFW_USE_EGL OFF CACHE BOOL "" FORCE)
+set (GLFW_USE_OPTIMUS_HPG OFF CACHE BOOL "" FORCE)
 
-set (DIRECTX OFF CACHE BOOL "" FORCE)
-set (RENDER_D3D OFF CACHE BOOL "" FORCE)
+# add glfw
+add_subdirectory ( ${proto_path}/deps/glfw/ )
+include_directories( ${proto_path}/deps/glfw/include)
 
-include ( ${proto_path}/deps/sdl2/CMakeLists.txt )
-
-set_property (TARGET SDL2-static PROPERTY FOLDER "deps")
+set_property (TARGET glfw PROPERTY FOLDER "deps")
 
 ###############################################
-
-find_package(OpenGL REQUIRED)
-include_directories(${OPENGL_INCLUDE_DIR})
 
 project(proto)
 
@@ -39,7 +39,7 @@ include_directories (${proto_path}/include)
 
 add_library ( proto STATIC ${source_files} ${header_files})
 
-set ( proto_dependencies ${SDL_EXTRA_LIBS} ${OPENGL_LIBRARIES} glew SDL2-static )
+set ( PROTO_LIBRARIES glew ${GLEW_LIBRARIES} glfw ${GLFW_LIBRARIES} )
 
-target_link_libraries(proto ${proto_dependencies} )
+target_link_libraries(proto ${PROTO_LIBRARIES} )
 

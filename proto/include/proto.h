@@ -11,6 +11,7 @@
 #include "proto.formats.h"
 #include "proto.framebuffer.h"
 #include "proto.id.h"
+#include "proto.gl.h"
 #include "proto.math.h"
 #include "proto.mesh.h"
 #include "proto.mesh_builder.h"

@@ -3,7 +3,7 @@
 #ifndef _proto_framebuffer_h_
 #define _proto_framebuffer_h_
 
-#include <GL/glew.h>
+#include "proto.gl.h"
 #include "proto.texture.h"
 
 namespace proto {

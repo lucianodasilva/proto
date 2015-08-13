@@ -1,11 +1,8 @@
 
+#include "proto.gl.h"
+#include "proto.debug.h"
 #include "proto.window_manager.h"
 #include "proto.window.h"
-#include "proto.debug.h"
-
-#include <SDL.h>
-#include <SDL_opengl.h>
-#include <GL/glew.h>
 
 using namespace std;
 
@@ -19,14 +16,14 @@ namespace proto {
 
 	void window_manager::initialize() {
 
-		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-			debug_print << "failed to initialize SDL system";
-			return;
-		}
-
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+		//if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+		//	debug_print << "failed to initialize SDL system";
+		//	return;
+		//}
+		//
+		//SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+		//SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+		//SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 		
 		// make dummy window ( avoid deadlocking window instance )
 		_dummy_window = proto::window::create_window_instance ("", { 10, 10 });
@@ -52,14 +49,14 @@ namespace proto {
 	}
 
 	bool window_manager::handle_windows () {
-		SDL_Event e;
-
-		// empty event pool
-		while (SDL_PollEvent(&e)) {
-			for (auto & w : _windows) {
-				w->handle_event(&e);
-			}
-		}
+		//SDL_Event e;
+		//
+		//// empty event pool
+		//while (SDL_PollEvent(&e)) {
+		//	for (auto & w : _windows) {
+		//		w->handle_event(&e);
+		//	}
+		//}
 
 		for (
 			auto w_it = _windows.begin ();

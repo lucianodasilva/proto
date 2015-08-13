@@ -17,13 +17,10 @@ project (demo)
 
 set ( demo_path ${CMAKE_CURRENT_LIST_DIR} )
 
-find_package(OpenGL REQUIRED)
-
-include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${demo_path})
 
 glob_code ( ${demo_path} source_files )
 
 add_executable(demo ${source_files})
-target_link_libraries(demo ${proto_dependencies} proto)
+target_link_libraries(demo proto ${PROTO_LIBRARIES})
 

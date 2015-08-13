@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 
+#include "proto.details.expected.h"
+
 namespace proto {
 
 	class non_copyable {
@@ -103,7 +105,7 @@ namespace proto {
 #	define macro_cat(x,y) macro_cat_impl (x, y)
 #	define auto_guard auto macro_cat (__scopeguard_, __COUNTER__) = proto::scope_guard
 
-	inline std::string get_file_content(const char * filename) {
+	inline expected < std::string > get_file_content(const std::string & filename) {
 		std::ifstream in(filename, std::ios::in | std::ios::binary);
 
 		if (in) {
@@ -122,8 +124,7 @@ namespace proto {
 			return content;
 		}
 
-		// TODO: have a debug message here
-		return "";
+		return expected_failed < invalid_argument > ("Failed to read from \"" + filename + "\"");
 	}
 
 }
