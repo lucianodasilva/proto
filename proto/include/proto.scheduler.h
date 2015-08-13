@@ -86,7 +86,7 @@ namespace proto {
 			-> future < typename result_of < _ft_t(_args_t ...)>::type >
 		{
 			auto & s = instance();
-			return static_cast <dispatcher_base &> (s).enqueue(f, args...);
+			return static_cast <scheduler_base &> (s).enqueue(f, args...);
 		}
 
 	};

@@ -4,6 +4,7 @@
 #define _proto_details_expected_h_
 
 #include <exception>
+#include <stdexcept>
 #include <utility>
 
 using namespace std;
@@ -86,20 +87,20 @@ namespace proto {
 			if (_failed)
 				return _error;
 			else
-				return make_exception_ptr(std::exception("Expected is not a failure"));
+				return make_exception_ptr(runtime_error("Expected is not a failure"));
 		}
 
 		inline void rethrow() const {
 			if (_failed)
 				std::rethrow_exception(_error);
 			else
-				throw std::exception("Expected is not a failure");
+				throw runtime_error("Expected is not a failure");
 		}
 
 		inline void swap(expected & v) {
 			if (_failed) {
 				if (v._failed) {
-					_error.swap(v._error);
+                    std::swap(_error, v._error);
 					std::swap(_failed, v._failed);
 				}
 				else {
@@ -156,14 +157,14 @@ namespace proto {
 			if (_failed)
 				return _error;
 			else
-				return make_exception_ptr(std::exception("Expected is not a failure"));
+				return make_exception_ptr(runtime_error("Expected is not a failure"));
 		}
 
 		inline void rethrow() const {
 			if (_failed)
 				std::rethrow_exception(_error);
 			else
-				throw std::exception("Expected is not a failure");
+				throw runtime_error("Expected is not a failure");
 		}
 
 		inline void swap(expected & v) {

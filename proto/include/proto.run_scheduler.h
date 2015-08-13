@@ -20,7 +20,7 @@ namespace proto {
 		static inline auto enqueue(_ft_t && f, _args_t && ... args)
 			-> future < typename result_of < _ft_t(_args_t ...)>::type >
 		{
-			auto & s = instance();
+			auto & s = scheduler::instance();
 			return static_cast <scheduler_base &> (s).enqueue(f, args...);
 		}
 
