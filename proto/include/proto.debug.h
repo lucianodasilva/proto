@@ -6,35 +6,10 @@
 #include <string>
 #include <sstream>
 #include <iostream>
-#include "proto.gl.h"
 
 #include "proto.details.h"
 #include "proto.debug_break.h"
 #include "proto.debug_print.h"
 #include "proto.debug_thread.h"
-
-namespace proto {
-	namespace debug {
-
-		std::string gl_error_to_string (GLenum error);
-
-#	ifdef _DEBUG
-
-#		define gl_error_guard( scope_name ) auto_guard ([] \
-		{ \
-			GLenum error = glGetError (); \
-			if (error != GL_NO_ERROR) \
-				debug_print << "gl error guard " scope_name " failed with error code [" << proto::debug::gl_error_to_string (error) << "]"; \
-		})
-
-#	else
-
-	#	define gl_error_guard( scope_name )
-
-#	endif
-
-	}
-
-}
 
 #endif

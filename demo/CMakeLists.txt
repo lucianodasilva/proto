@@ -22,5 +22,5 @@ include_directories(${demo_path})
 glob_code ( ${demo_path} source_files )
 
 add_executable(demo ${source_files})
-target_link_libraries(demo proto ${PROTO_LIBRARIES})
 
+target_link_libraries(demo proto proto_gl ${PROTO_GL_LIBRARIES})

@@ -23,6 +23,7 @@ else ()
 endif ()
 
 include (${CMAKE_CURRENT_LIST_DIR}/proto/CMakeLists.txt)
+include (${CMAKE_CURRENT_LIST_DIR}/proto_gl/CMakeLists.txt)
 include (${CMAKE_CURRENT_LIST_DIR}/demo/CMakeLists.txt)
 
 project (proto)

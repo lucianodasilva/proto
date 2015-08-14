@@ -1,5 +1,4 @@
 #include "proto.scheduler.h"
-#include "proto.window_manager.h"
 
 #include <memory>
 
