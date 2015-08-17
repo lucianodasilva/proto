@@ -38,19 +38,25 @@ namespace proto {
 			mouse_buttons button;
 		};
 
-		using mouse_down_event = window_event < mouse_event_args >;
-		using mouse_up_event = window_event < mouse_event_args >;
-		using mouse_move_event = window_event < mouse_event_args >;
+		struct key_event_args {
+		};
 
-		using window_load_event = window_event < void >;
-		using window_close_event = window_event < void >;
-		using window_show_event = window_event < void >;
-		using window_hide_event = window_event < void >;
+		using mouse_down_event		= window_event < mouse_event_args >;
+		using mouse_up_event		= window_event < mouse_event_args >;
+		using mouse_move_event		= window_event < mouse_event_args >;
 
-		using window_render_event = window_event < void >;
-		using window_update_event = window_event < void >;
+		using key_down_event		= window_event < key_event_args >;
+		using key_up_event			= window_event < key_event_args >;
 
-		using window_resize_event = window_event < point >;
+		using window_load_event		= window_event < void >;
+		using window_close_event	= window_event < void >;
+		using window_show_event		= window_event < void >;
+		using window_hide_event		= window_event < void >;
+
+		using window_render_event	= window_event < void >;
+		using window_update_event	= window_event < void >;
+
+		using window_resize_event	= window_event < point >;
 
 		class window {
 		private:
@@ -75,6 +81,9 @@ namespace proto {
 			mouse_down_event	on_mouse_down;
 			mouse_up_event		on_mouse_up;
 			mouse_move_event	on_mouse_move;
+
+			key_down_event		on_key_down;
+			key_up_event		on_key_up;
 
 			window_render_event	on_window_render;
 			window_update_event	on_window_update;
@@ -103,7 +112,7 @@ namespace proto {
 
 			void make_current() const;
 
-			static shared_ptr < window > create(const char * title, const point & size_v);
+			static shared_ptr < window > create(const string & title, const point & size_v);
 
 		};
 	}
