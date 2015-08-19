@@ -4,7 +4,7 @@
 #define _proto_gl_mesh_builder_h_
 
 #include <proto.h>
-#include "proto.gl.formats.h"
+#include "proto.gl.constants.h"
 #include "proto.gl.mesh.h"
 
 #include <vector>

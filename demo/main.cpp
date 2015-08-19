@@ -126,41 +126,6 @@ void error_callback(int error, const char * description) {
 
 int main(int arg_c, char * arg_v[]) {
 
-	bool running = false;
-	
-	GLFWwindow * win;
-	glfwSetErrorCallback(error_callback);
-
-	if (!glfwInit())
-		exit(EXIT_FAILURE);
-
-	glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
-
-	win = glfwCreateWindow(200, 200, "yada", nullptr, nullptr);
-
-	if (!win) {
-		glfwTerminate();
-		exit(EXIT_FAILURE);
-	}
-
-	glfwMakeContextCurrent(win);
-	glClearColor(0, 0, 255, 255);
-
-	glfwShowWindow(win);
-
-	running = true;
-	while (running) {
-		glClear(GL_COLOR_BUFFER_BIT);
-		glfwSwapBuffers(win);
-		if (glfwWindowShouldClose(win))
-			running = false;
-
-		glfwPollEvents();
-	}
-
-	glfwTerminate();
-	exit(EXIT_SUCCESS);
-
 	//auto w1 = proto::gl::window::create("Tilling Proto 1", { 512, 512 });
 	//auto wc1 = window_controller(w1);
 	//

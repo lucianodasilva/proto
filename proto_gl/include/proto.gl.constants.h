@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _proto_gl_formats_h_
-#define _proto_gl_formats_h_
+#ifndef _proto_gl_constants_h_
+#define _proto_gl_constants_h_
 
 #include <cinttypes>
 #include "proto.gl.deps.h"

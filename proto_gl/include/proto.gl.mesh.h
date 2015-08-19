@@ -6,7 +6,7 @@
 #include <cinttypes>
 
 #include <proto.h>
-#include "proto.gl.formats.h"
+#include "proto.gl.constants.h"
 
 namespace proto {
 	namespace gl {

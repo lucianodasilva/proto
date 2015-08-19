@@ -62,17 +62,8 @@ namespace proto {
 		private:
 
 			unique_ptr < class window_imp > _implement;
-			renderer						_renderer;
 
 			friend class window_manager;
-
-			void * context() const;
-			void swap_context() const;
-
-			using external_event = void *;
-			void handle_event(external_event e);
-
-			static shared_ptr < window > create_window_instance(const char * title, const point & size_v);
 
 		public:
 
@@ -110,9 +101,9 @@ namespace proto {
 			point size() const;
 			void size(const point & p);
 
-			void make_current() const;
+			void make_context_current () const;
 
-			static shared_ptr < window > create(const string & title, const point & size_v);
+			static shared_ptr < window > create (const string & title, const point & size_v);
 
 		};
 	}

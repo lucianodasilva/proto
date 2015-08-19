@@ -5,7 +5,7 @@
 
 #include "proto.gl.debug.h"
 #include "proto.gl.deps.h"
-#include "proto.gl.formats.h"
+#include "proto.gl.constants.h"
 #include "proto.gl.framebuffer.h"
 #include "proto.gl.mesh.h"
 #include "proto.gl.mesh_builder.h"
