@@ -4,6 +4,7 @@
 #define _proto_gl_window_h_
 
 #include <memory>
+
 #include <proto.h>
 #include "proto.gl.renderer.h"
 
@@ -13,7 +14,6 @@ namespace proto {
 	namespace gl {
 
 		class window;
-		class window_manager;
 
 		template < class ... _argv_tv >
 		using window_event = event < window, _argv_tv ... >;
@@ -59,12 +59,10 @@ namespace proto {
 		using window_resize_event	= window_event < point >;
 
 		class window {
+		public:
+			class native_proxy;
 		private:
-
-			unique_ptr < class window_imp > _implement;
-
-			friend class window_manager;
-
+			unique_ptr < class native_proxy > _native;
 		public:
 
 			window();
@@ -100,8 +98,6 @@ namespace proto {
 
 			point size() const;
 			void size(const point & p);
-
-			void make_context_current () const;
 
 			static shared_ptr < window > create (const string & title, const point & size_v);
 

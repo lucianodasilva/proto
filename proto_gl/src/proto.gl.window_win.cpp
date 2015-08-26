@@ -1,40 +1,68 @@
 #ifdef PROTO_API_WIN32
 
+#include <proto.h>
+
 #include "proto.gl.window.h"
-#include "proto.gl.window_manager.h"
 #include "proto.gl.debug.h"
+#include "proto.gl.deps.h"
 
 #include <memory>
 #include <utility>
+#include <thread>
 
 #define VC_EXTRALEAN
 #define WIN32_LEAN_AND_MEAN
 
 #include <Windows.h>
+#include <windowsx.h>
 
 using namespace std;
 
 namespace proto {
+
 	namespace gl {
 
-		const LPCSTR	window_class_name = "PROTOWNDCLASS";
-		const DWORD		window_style = WS_OVERLAPPEDWINDOW;
+		// windows native specific helper functions
+		expected < void > create_native_class();
 
-		class window_imp {
+		expected < void > create_native_window(
+			const string & title,
+			const point & size_v,
+			window * winst,
+			HWND & handle,
+			HDC & dc,
+			HGLRC & glrc
+		);
+
+		void handle_native_events(HWND handle);
+
+		using window_task = function < void() >;
+		// ---------------------------------------
+
+		class window::native_proxy {
 		public:
 
-			HWND	handle;
-			HDC		dc;
-			HGLRC	glrc;
+			HWND			handle;
+			HDC				dc;
+			HGLRC			glrc;
 
-			window_imp() :
+			thread			running_thread;
+			atomic < bool >	running;
+
+			queue < window_task >
+							task_queue;
+			spin_mutex		task_queue_mutex;
+
+			native_proxy () :
 				handle(nullptr),
 				dc(nullptr),
-				glrc(nullptr)
+				glrc(nullptr),
+				running (false)
 			{}
 
-			~window_imp() {
+			~native_proxy() {
 				if (handle) {
+					running = false;
 					::wglDeleteContext(glrc);
 					::DeleteDC(dc);
 					::CloseWindow(handle);
@@ -42,47 +70,113 @@ namespace proto {
 				}
 			}
 
+			inline void enqueue_task(window_task && task) {
+				unique_lock < spin_mutex > lock(task_queue_mutex);
+				task_queue.emplace(task);
+			}
+
+			static void thread_run(window * w, const string & title, const point & size_v) {
+				unique_lock < spin_mutex > starting_lock(w->_native->task_queue_mutex);
+
+				auto native = w->_native.get();
+				atomic < bool > & r_running = native->running;
+
+				queue < window_task > local_task_queue;
+
+				if (!create_native_class())
+					return;
+
+				if (!create_native_window(
+						title, 
+						size_v,
+						w, 
+						native->handle, 
+						native->dc, 
+						native->glrc
+				))
+					return;
+
+				wglMakeCurrent(native->dc, native->glrc);
+
+				r_running = true;
+
+				// release initialization lock
+				starting_lock.unlock();
+
+				w->on_window_load.sync_invoke(*w);
+
+				while (r_running) {
+
+					handle_native_events(native->handle);
+
+					// switch task queues
+					{
+						unique_lock < spin_mutex > lock(native->task_queue_mutex);
+						swap(native->task_queue, local_task_queue);
+					}
+
+					while (!local_task_queue.empty()) {
+						local_task_queue.front()();
+						local_task_queue.pop();
+					}
+
+					w->on_window_render.sync_invoke(*w);
+					SwapBuffers(native->dc);
+				}
+			}
+
+			inline void create_and_run(window * w, const string & title, const point & size_v) {
+				running_thread = thread(native_proxy::thread_run, w, title, size_v);
+			}
+
 		};
 
-		window::window() : _implement(make_unique < window_imp>())
+		window::window() : _native (make_unique < native_proxy > ())
 		{}
 
-		window::~window() {}
+		window::~window() {
+			this->close();
+		}
 
 		void window::show() {
-			if (_implement && !is_visible()) {
-				::ShowWindow(_implement->handle, true);
-				on_window_load.invoke(*this);
+			if (_native && !is_visible()) {
+				_native->enqueue_task([this] {
+					::ShowWindow(_native->handle, SW_SHOW);
+				});
 			}
 		}
 
 		void window::hide() {
-			if (_implement)
-				::ShowWindow(_implement->handle, false);
+			if (_native) {
+				_native->enqueue_task([this] {
+					::ShowWindow(_native->handle, SW_HIDE);
+				});
+			}
 		}
 
 		void window::close() {
-			if (_implement) {
-				_implement.release();
+			if (_native) {
+				_native->enqueue_task([this] {
+					_native->running = false;
+				});
+
+				_native->running_thread.join();
+				_native.release();
 			}
 		}
 
 		bool window::is_visible() const {
-			if (_implement)
-				return ::IsWindowVisible(_implement->handle) == TRUE;
-
-			return false;
+			return _native && ::IsWindowVisible(_native->handle) == TRUE;
 		}
 
 		bool window::is_closed() const {
-			return !_implement;
+			return !_native;
 		}
 
 		point window::size() const {
-			if (_implement) {
+			if (_native) {
 				RECT rct;
-				GetWindowRect(_implement->handle, &rct);
-
+				GetWindowRect(_native->handle, &rct);
 				return{ (int32_t)(rct.right - rct.left), (int32_t)(rct.bottom - rct.top) };
 			}
 
@@ -90,111 +184,27 @@ namespace proto {
 		}
 
 		void window::size(const point & p) {
-			if (_implement) {
-				::SetWindowPos(_implement->handle, nullptr, 0, 0, p.x, p.y, SWP_NOREPOSITION);
+			if (_native) {
+				_native->enqueue_task([this, p] {
+					::SetWindowPos(_native->handle, nullptr, 0, 0, p.x, p.y, SWP_NOREPOSITION);
+				});
 			}
 		}
 
-		extern LRESULT CALLBACK windows_message_callback(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
 		std::shared_ptr < window > window::create(const string & title, const point & size_v) {
 
-			auto hinst = ::GetModuleHandle(NULL);
-
-			WNDCLASSEX wc;
-			wc.cbSize = sizeof(WNDCLASSEX);
-			wc.style = CS_HREDRAW | CS_VREDRAW;
-			wc.lpfnWndProc = windows_message_callback;
-			wc.cbClsExtra = 0;
-			wc.cbWndExtra = 0;
-			wc.hInstance = hinst;
-			wc.hIcon = LoadIcon(0, IDI_APPLICATION);
-			wc.hCursor = LoadCursor(0, IDC_ARROW);
-			wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
-			wc.lpszMenuName = 0;
-			wc.lpszClassName = window_class_name;
-			wc.hIconSm = NULL;
-
-			auto class_reg = ::RegisterClassEx(&wc);
-			auto err_reg = ::GetLastError();
-
-			if (!class_reg && (err_reg != ERROR_CLASS_ALREADY_EXISTS)) {
-				debug_print << "window class registry failed";
-				return nullptr;
-			}
-
 			auto inst = shared_ptr < window >(new window());
-
-			inst->_implement->handle = ::CreateWindow(
-				window_class_name,
-				title.c_str (),
-				window_style,
-				CW_USEDEFAULT,
-				CW_USEDEFAULT,
-				size_v.x,
-				size_v.y,
-				0,
-				0,
-				hinst,
-				inst.get()
-				);
-
-			if (!inst->_implement->handle) {
-				debug_print << "failed creating window instance";
-				return nullptr;
-			}
-
-			PIXELFORMATDESCRIPTOR pfd = {
-				sizeof(PIXELFORMATDESCRIPTOR),
-				1, // version number
-				PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
-				PFD_TYPE_RGBA,
-				24, // color depth
-				0, 0, 0, 0, 0, 0,
-				0,
-				0,
-				0,
-				0, 0, 0, 0,
-				32, // 32 bit z buffer
-				0,	// no stencil buffer
-				0,
-				PFD_MAIN_PLANE,
-				0,
-				0, 0, 0
-			};
-
-			inst->_implement->dc = GetDC(inst->_implement->handle);
-			int pixel_format = ChoosePixelFormat(inst->_implement->dc, &pfd);
-
-			if (pixel_format == 0) {
-				debug_print << "failed creating pixel format";
-				return nullptr;
-			}
-
-			if (SetPixelFormat(inst->_implement->dc, pixel_format, &pfd) == FALSE) {
-				debug_print << "failed setting pixel format";
-				return nullptr;
-			}
-
-			inst->_implement->glrc = wglCreateContext(inst->_implement->dc);
-			if (inst->_implement->glrc == nullptr) {
-				debug_print << "failed creating wgl context";
-				return nullptr;
-			}
-
-			window_manager::instance().register_window(inst);
 
 			// respond to operating system close
 			inst->on_window_close += [](window & sender) {
 				sender.close();
 			};
 
+			inst->_native->create_and_run(inst.get(), title, size_v);
+
 			return inst;
 		}
 
-		void window::make_context_current () const {
-			wglMakeCurrent(_implement->dc, _implement->glrc);
-		}
 	}
 }
 

@@ -3,6 +3,7 @@
 #include <proto.gl.h>
 
 #include <thread>
+#include <chrono>
 
 //struct window_controller {
 
@@ -125,6 +126,21 @@ void error_callback(int error, const char * description) {
 }
 
 int main(int arg_c, char * arg_v[]) {
+
+	auto window = proto::gl::window::create("This Window of Mine", { 512, 512 });
+
+	window->on_mouse_down += [](auto & sender, proto::gl::mouse_event_args & e) {
+		std::cout << std::this_thread::get_id() << std::endl;
+	};
+
+	window->on_window_render += [](auto & sender) {
+		glClearColor(255, 0, 0, 255);
+		glClear(GL_COLOR_BUFFER_BIT);
+	};
+
+	window->show();
+
+	while (!window->is_closed()) { this_thread::sleep_for(500ms); }
 
 	//auto w1 = proto::gl::window::create("Tilling Proto 1", { 512, 512 });
 	//auto wc1 = window_controller(w1);

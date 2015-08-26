@@ -10,5 +10,3 @@ glob_code ( ${proto_path}/src source_files )
 include_directories (${proto_path}/include)
 
 add_library ( proto STATIC ${source_files} ${header_files})
-
-target_link_libraries( proto ${PROTO_LIBRARIES} )

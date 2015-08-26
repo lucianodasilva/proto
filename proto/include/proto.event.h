@@ -45,7 +45,7 @@ namespace proto {
 		inline void operator += (handler_t && handler) {
 			lock_guard < spin_mutex > lock(_handler_mutex);
 			_handlers.emplace_back(
-				make_shared < handler_t > (forward (handler))
+				make_shared < handler_t > (handler)
 			);
 		}
 

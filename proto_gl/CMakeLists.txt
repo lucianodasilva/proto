@@ -23,7 +23,7 @@ include_directories (${proto_gl_path}/include)
 
 add_library ( proto_gl STATIC ${source_files} ${header_files})
 
-set ( PROTO_GL_LIBRARIES proto glew ${GLEW_LIBRARIES} )
+set (PROTO_GL_LIBRARIES proto glew ${GLEW_LIBRARIES} CACHE INTERNAL "PROTO_GL_LIBRARIES")
 
 target_link_libraries(proto_gl ${PROTO_GL_LIBRARIES} )
 

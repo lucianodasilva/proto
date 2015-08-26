@@ -1,3 +1,4 @@
+#ifdef PROTO_API_WIN32
 
 #include "proto.gl.debug.h"
 #include "proto.gl.window_manager.h"
@@ -108,3 +109,5 @@ namespace proto {
 
 	}
 }
+
+#endif
