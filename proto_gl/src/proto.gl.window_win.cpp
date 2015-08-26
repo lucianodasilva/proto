@@ -63,10 +63,7 @@ namespace proto {
 			~native_proxy() {
 				if (handle) {
 					running = false;
-					::wglDeleteContext(glrc);
-					::DeleteDC(dc);
-					::CloseWindow(handle);
-					::DestroyWindow(handle);
+					running_thread.join();
 				}
 			}
 
@@ -76,10 +73,12 @@ namespace proto {
 			}
 
 			static void thread_run(window * w, const string & title, const point & size_v) {
+
 				unique_lock < spin_mutex > starting_lock(w->_native->task_queue_mutex);
 
 				auto native = w->_native.get();
 				atomic < bool > & r_running = native->running;
+				r_running = true;
 
 				queue < window_task > local_task_queue;
 
@@ -97,8 +96,6 @@ namespace proto {
 					return;
 
 				wglMakeCurrent(native->dc, native->glrc);
-
-				r_running = true;
 
 				// release initialization lock
 				starting_lock.unlock();
@@ -123,6 +120,11 @@ namespace proto {
 					w->on_window_render.sync_invoke(*w);
 					SwapBuffers(native->dc);
 				}
+
+				::wglDeleteContext(native->glrc);
+				::DeleteDC(native->dc);
+				::CloseWindow(native->handle);
+				::DestroyWindow(native->handle);;
 			}
 
 			inline void create_and_run(window * w, const string & title, const point & size_v) {
@@ -134,12 +136,10 @@ namespace proto {
 		window::window() : _native (make_unique < native_proxy > ())
 		{}
 
-		window::~window() {
-			this->close();
-		}
+		window::~window() {}
 
 		void window::show() {
-			if (_native && !is_visible()) {
+			if (_native->running && !is_visible()) {
 				_native->enqueue_task([this] {
 					::ShowWindow(_native->handle, SW_SHOW);
 				});
@@ -147,7 +147,7 @@ namespace proto {
 		}
 
 		void window::hide() {
-			if (_native) {
+			if (_native->running) {
 				_native->enqueue_task([this] {
 					::ShowWindow(_native->handle, SW_HIDE);
 				});
@@ -155,26 +155,24 @@ namespace proto {
 		}
 
 		void window::close() {
-			if (_native) {
-				_native->enqueue_task([this] {
-					_native->running = false;
-				});
+			if (_native->running) {
+				_native->running = false;
 
-				_native->running_thread.join();
-				_native.release();
+				if (_native->running_thread.get_id() != this_thread::get_id())
+					_native->running_thread.join();
 			}
 		}
 
 		bool window::is_visible() const {
-			return _native && ::IsWindowVisible(_native->handle) == TRUE;
+			return _native->running && ::IsWindowVisible(_native->handle) == TRUE;
 		}
 
 		bool window::is_closed() const {
-			return !_native;
+			return !_native->running;
 		}
 
 		point window::size() const {
-			if (_native) {
+			if (_native->running) {
 				RECT rct;
 				GetWindowRect(_native->handle, &rct);
 				return{ (int32_t)(rct.right - rct.left), (int32_t)(rct.bottom - rct.top) };
@@ -184,7 +182,7 @@ namespace proto {
 		}
 
 		void window::size(const point & p) {
-			if (_native) {
+			if (_native->running) {
 				_native->enqueue_task([this, p] {
 					::SetWindowPos(_native->handle, nullptr, 0, 0, p.x, p.y, SWP_NOREPOSITION);
 				});
