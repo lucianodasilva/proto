@@ -24,8 +24,11 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # -----------------
 
 add_library_module (proto ${proto_path}/modules/proto)
+
 add_library_module (proto_gl ${proto_path}/modules/proto_gl proto)
 
-add_executable_module (demo ${proto_path}/modules/demo proto)
+add_library_module (proto_tui ${proto_path}/modules/proto_tui proto)
+
+add_executable_module (demo ${proto_path}/modules/demo proto proto_tui)
 
 project (proto)
