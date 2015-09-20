@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.0)
 
 set ( proto_path ${CMAKE_CURRENT_LIST_DIR})
 
@@ -25,5 +25,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 add_library_module (proto ${proto_path}/modules/proto)
 add_library_module (proto_gl ${proto_path}/modules/proto_gl proto)
+
+add_executable_module (demo ${proto_path}/modules/demo proto)
 
 project (proto)
