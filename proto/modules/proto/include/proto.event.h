@@ -4,27 +4,49 @@
 #define _proto_event_h_
 
 #include "proto.details.h"
-#include "proto.event_scheduler.h"
+#include "proto.scheduler.h"
 
 namespace proto {
 
-	template < class _sender_t, class ... _argv_tv >
-	struct event {
+	namespace details {
+
+		template < class ... _argv_tv >
+		struct event_invoker {
+		public:
+			using handler_t = std::function < void(_argv_tv & ...) >;
+			using handler_vector_t = std::vector < std::shared_ptr < handler_t > >;
+
+			template < class ... _invoke_args_tv >
+			inline static void invoke(handler_vector_t const & handlers, _invoke_args_tv && ... args) {
+				for (auto & h : handlers)
+					h->operator ()(args...);
+			}
+		};
+
+		template <>
+		struct event_invoker < void > {
+		public:
+			using handler_t = std::function < void() >;
+			using handler_vector_t = std::vector < std::shared_ptr < handler_t > >;
+
+			inline static void invoke(handler_vector_t const & handlers) {
+				for (auto & h : handlers)
+					h->operator ()();
+			}
+		};
+
+	}
+
+	template < class ... _argv_tv >
+	struct event : public non_copyable {
 	public:
-		using handler_t = std::function < void(_sender_t &, _argv_tv & ...) >;
-	private:
-		mutable spin_mutex							_handler_mutex;
-		std::vector < shared_ptr < handler_t > >	_handlers;
-	public:
 
-		// force single instance / no copy
-		event(const event &) = delete;
-		event & operator = (const event &) = delete;
+		using invoker_t = details::event_invoker < _argv_tv ... >;
+		using handler_t = typename invoker_t::handler_t;
 
-		inline event() {}
-
-		inline void sync_invoke(_sender_t & sender, _argv_tv & ... argv) const {
-			std::vector < shared_ptr < handler_t > > handlers;
+		template < class ... _invoke_args_tv >
+		inline void invoke(_invoke_args_tv && ... argv) const {
+			invoker_t::handler_vector_t handlers;
 
 			{
 				std::lock_guard < spin_mutex > lock(_handler_mutex);
@@ -32,20 +54,20 @@ namespace proto {
 				handlers = _handlers;
 			}
 
-			for (auto & h : handlers)
-				h->operator ()(sender, argv ...);
+			invoker_t::invoke(handlers, argv...);
 		}
 
-		inline void invoke(_sender_t & sender, _argv_tv & ... argv) const {
-			event_scheduler::enqueue ([this, &sender, &argv...] {
-				sync_invoke(sender, argv...);
+		template < class ... _invoke_args_tv >
+		inline void async_invoke(proto::scheduler_base & event_scheduler, _invoke_args_tv && ... argv) const {
+			event_scheduler.enqueue ([this, &argv...] {
+				invoke(sender, std::move(argv...));
 			});
 		}
 
 		inline void operator += (handler_t && handler) {
 			lock_guard < spin_mutex > lock(_handler_mutex);
 			_handlers.emplace_back(
-				make_shared < handler_t > (forward (handler))
+				make_shared < handler_t > (std::move (handler))
 			);
 		}
 
@@ -54,66 +76,18 @@ namespace proto {
 			auto it = find(
 				_handlers.begin(),
 				_handlers.end(),
-				forward (handler)
-				);
+				move (handler)
+			);
 
 			if (it != _handlers.end())
 				_handlers.erase(it);
 		}
-	};
 
-	template < class _sender_t >
-	struct event < _sender_t, void > {
-	public:
-		using handler_t = std::function < void(_sender_t &) >;
 	private:
-		mutable spin_mutex					_handler_mutex;
-		vector < shared_ptr < handler_t > >	_handlers;
-	public:
-
-		// force single instance / no copy
-		event(const event &) = delete;
-		event & operator = (const event &) = delete;
-
-		inline event() {}
-
-		inline void sync_invoke(_sender_t & sender) const {
-			vector < shared_ptr < handler_t > > handlers;
-
-			{
-				lock_guard < spin_mutex > lock(_handler_mutex);
-				handlers = _handlers;
-			}
-
-			for (auto & h : _handlers)
-				h->operator ()(sender);
-		}
-
-		inline void invoke(_sender_t & sender) const {
-			event_scheduler::enqueue ([this, &sender] {
-				sync_invoke(sender);
-			});
-		}
-
-		inline void operator += (handler_t && handler) {
-			lock_guard < spin_mutex > lock(_handler_mutex);
-			_handlers.emplace_back(
-				make_shared < handler_t > (forward < handler_t >(handler))
-			);
-		}
-
-		inline void operator -= (handler_t && handler) {
-			lock_guard < spin_mutex > lock(_handler_mutex);
-			auto it = find(
-				_handlers.begin(),
-				_handlers.end(),
-				forward (handler)
-				);
-
-			if (it != _handlers.end())
-				_handlers.erase(it);
-		}
+		mutable spin_mutex						_handler_mutex;
+		typename invoker_t::handler_vector_t	_handlers;
 	};
+
 
 }
 

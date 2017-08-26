@@ -16,16 +16,17 @@ namespace proto {
 
 	using scheduler_task = function < void() >;
 
-	class scheduler_base {
+	class scheduler_base : public non_copyable {
 	protected:
 
 		queue < scheduler_task >	_tasks;
 
 		mutex						_task_mutex;
 		condition_variable			_condition;
-		atomic < bool >				_is_running;
 
-		scheduler_base ();
+		atomic < bool >				_scheduler_running = true;
+
+		virtual void join_threads() = 0;
 
 	public:
 
@@ -34,22 +35,17 @@ namespace proto {
 		virtual ~scheduler_base();
 
 		template < class _ft_t, class ... _args_t >
-		inline auto enqueue(_ft_t && f, _args_t && ... args)
-			-> future < typename result_of < _ft_t(_args_t ...)>::type >
-		{
+		inline auto enqueue(_ft_t && f, _args_t && ... args) {
 
 			using ret_t = typename result_of < _ft_t(_args_t ...)>::type;
 
 			auto task = make_shared < packaged_task < ret_t() > >(
 				bind(forward < _ft_t >(f), forward < _args_t >(args) ...)
-				);
+			);
 
 			future < ret_t > res = task->get_future();
 			{
 				unique_lock < mutex > lock(_task_mutex);
-
-				if (!_is_running)
-					throw std::runtime_error("added tasks on stopped scheduler");
 
 				_tasks.emplace([task]() {
 					(*task)();
@@ -63,31 +59,20 @@ namespace proto {
 
 	};
 
-	class scheduler :
-		public singleton_base < scheduler >,
-		public scheduler_base
-	{
+	class scheduler : public scheduler_base {
 	private:
 
 		vector < thread >	_workers;
 
 	protected:
 
-		friend class singleton_base < scheduler >;
-		scheduler();
+		virtual void join_threads() override;
 
 	public:
 
-		virtual bool contains_thread(const thread::id & id) const;
-		virtual ~scheduler();
+		scheduler(unsigned int thread_count = std::thread::hardware_concurrency());
 
-		template < class _ft_t, class ... _args_t >
-		static inline auto enqueue(_ft_t && f, _args_t && ... args)
-			-> future < typename result_of < _ft_t(_args_t ...)>::type >
-		{
-			auto & s = instance();
-			return static_cast <scheduler_base &> (s).enqueue(f, args...);
-		}
+		virtual bool contains_thread(const thread::id & id) const override;
 
 	};
 
