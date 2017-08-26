@@ -1,4 +1,3 @@
-
 macro (check_environment)
 
 	if (CMAKE_SYSTEM_NAME MATCHES "Windows")
@@ -6,11 +5,7 @@ macro (check_environment)
 	elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
 		add_definitions (-DPROTO_OS_LINUX)
 	elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-		add_definitions (-DPROTO_OS_DARWIN)
-	elseif (CMAKE_SYSTEM_NAME MATCHES "Sun")
-		add_definitions (-DPROTO_OS_SUN)
-	elseif (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
-		add_definitions (-DPROTO_OS_FREEBSD)
+        add_definitions (-DPROTO_OS_DARWIN)
 	endif ()
 
 	if (UNIX)
@@ -25,8 +20,6 @@ macro (check_environment)
 		add_definitions (-DPROTO_COMPILER_CLANG)
 	elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 		add_definitions (-DPROTO_COMPILER_GNU)
-	elseif (CMAKE_CXX_COMPILER_ID MATCHES "SunPro")
-		add_definitions (-DPROTO_COMPILER_SUNPRO)
 	endif ()
 
 endmacro ()

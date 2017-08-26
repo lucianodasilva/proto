@@ -1,0 +1,3 @@
+[submodule "proto/cmake/cmake_modules"]
+	path = proto/cmake/cmake_modules
+	url = git@github.com:lucianodasilva/cmake_modules.git
