@@ -4,15 +4,13 @@
 
 namespace proto {
 
+	void scheduler_base::notify_one() {}
 
-	scheduler_base::~scheduler_base() {
+	scheduler::~scheduler(){
+		scheduler_base::_scheduler_running = false;
+		
 		_condition.notify_all();
-		join_threads();
 
-		_scheduler_running = false;
-	}
-
-	void scheduler::join_threads() {
 		for (auto & worker : _workers)
 			worker.join();
 	}
@@ -28,11 +26,11 @@ namespace proto {
 				[this]
 			{
 				for (;;) {
-					scheduler_task task;
+					scheduler_task task = {};
 
 					{
 						unique_lock < mutex > lock(scheduler_base::_task_mutex);
-						scheduler_base::_condition.wait(
+						_condition.wait(
 							lock,
 							[this] { return _scheduler_running && !scheduler_base::_tasks.empty();}
 						);
@@ -56,6 +54,10 @@ namespace proto {
 				return true;
 
 		return false;
+	}
+
+	void scheduler::notify_one() {
+		_condition.notify_one();
 	}
 
 }

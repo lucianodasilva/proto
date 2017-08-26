@@ -9,44 +9,59 @@ namespace proto {
 	}
 
 	run_scheduler::run_scheduler() 
-		: scheduler_base() 
-	{}
+		: scheduler_base()
+	{
+		_scheduler_running = false;
+	}
 
-	void run_scheduler::run( const function < void ( run_scheduler & ) > & callback ) {
+	run_scheduler::~run_scheduler() {
+		if (_scheduler_running)
+			join();
+	}
+
+	void run_scheduler::run( function < void ( run_scheduler & ) > const & callback ) {
 		_thread_id = this_thread::get_id();
-		_is_running = true;
+		_scheduler_running = true;
 
-		for (;;) {
-
-			scheduler_task task;
-
-			// consume available tasks
-			for (;;) {
-				{
-					lock_guard < mutex > lock(scheduler_base::_task_mutex);
-
-					if (!scheduler_base::_is_running && scheduler_base::_tasks.empty())
-						return;
-
-					if (!scheduler_base::_tasks.empty()) {
-						task = move(scheduler_base::_tasks.front());
-						scheduler_base::_tasks.pop();
-					}
-				}
-
-				if (!task)
-					break;
-
-				task();
-			}
-
+		for (;_scheduler_running;) {
+			consume_tasks();
 			callback(*this);
 		}
 
 	}
 
 	void run_scheduler::stop() {
-		scheduler_base::_is_running = false;
+		join();
+	}
+
+	void run_scheduler::join() {
+		scheduler_base::_scheduler_running = false;
+		consume_tasks();
+	}
+
+	void run_scheduler::consume_tasks() {
+
+		// consume available tasks
+		for (;;) {
+			scheduler_task task = {};
+
+			{
+				lock_guard < mutex > lock(scheduler_base::_task_mutex);
+
+				if (!scheduler_base::_scheduler_running && scheduler_base::_tasks.empty())
+					return;
+
+				if (!scheduler_base::_tasks.empty()) {
+					task = move(scheduler_base::_tasks.front());
+					scheduler_base::_tasks.pop();
+				}
+			}
+
+			if (!task)
+				break;
+
+			task();
+		}
 	}
 
 }
