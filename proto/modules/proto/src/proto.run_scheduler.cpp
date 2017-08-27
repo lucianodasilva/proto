@@ -4,7 +4,7 @@
 
 namespace proto {
 
-	bool run_scheduler::contains_thread(const thread::id & id) const {
+	bool run_scheduler::contains_thread(const std::thread::id & id) const {
 		return id == _thread_id;
 	}
 
@@ -19,8 +19,8 @@ namespace proto {
 			join();
 	}
 
-	void run_scheduler::run( function < void ( run_scheduler & ) > const & callback ) {
-		_thread_id = this_thread::get_id();
+	void run_scheduler::run( std::function < void ( run_scheduler & ) > const & callback ) {
+		_thread_id = std::this_thread::get_id();
 		_scheduler_running = true;
 
 		for (;_scheduler_running;) {
@@ -46,7 +46,7 @@ namespace proto {
 			scheduler_task task = {};
 
 			{
-				lock_guard < mutex > lock(scheduler_base::_task_mutex);
+				std::lock_guard < std::mutex > lock(scheduler_base::_task_mutex);
 
 				if (!scheduler_base::_scheduler_running && scheduler_base::_tasks.empty())
 					return;

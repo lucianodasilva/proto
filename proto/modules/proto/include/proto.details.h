@@ -16,13 +16,11 @@ namespace proto {
 
 	class non_copyable {
 	protected:
-		non_copyable() {}
-		~non_copyable() {}
-	public:
-
+		non_copyable() = default;
+		~non_copyable() = default;
+	private:
 		non_copyable(const non_copyable &) = delete;
 		non_copyable & operator = (const non_copyable &) = delete;
-
 	};
 
 	struct spin_mutex {
@@ -124,7 +122,7 @@ namespace proto {
 			return content;
 		}
 
-		return expected_failed < invalid_argument > ("Failed to read from \"" + filename + "\"");
+		return expected_failed < std::invalid_argument > ("Failed to read from \"" + filename + "\"");
 	}
 
 }

@@ -1,13 +1,10 @@
 #pragma once
-
 #ifndef _proto_details_expected_h_
 #define _proto_details_expected_h_
 
 #include <exception>
 #include <stdexcept>
 #include <utility>
-
-using namespace std;
 
 namespace proto {
 
@@ -19,8 +16,8 @@ namespace proto {
 	#pragma warning ( disable : 4624)
 
 		union {
-			_t				_value;
-			exception_ptr	_error;
+			_t					_value;
+			std::exception_ptr	_error;
 		};
 
 	#pragma warning (pop)
@@ -42,7 +39,7 @@ namespace proto {
 		inline expected(const expected & v) :
 			_failed(v._failed) {
 			if (_failed)
-				new (&_error) exception_ptr(v._error);
+				new (&_error) std::exception_ptr(v._error);
 			else
 				new (&_value) _t(v._value);
 		}
@@ -50,14 +47,14 @@ namespace proto {
 		inline expected(expected && v) :
 			_failed(v._failed) {
 			if (_failed)
-				new (&_error) exception_ptr(std::move(v._error));
+				new (&_error) std::exception_ptr(std::move(v._error));
 			else
 				new (&_value) _t(std::move(v._value));
 		}
 
-		inline expected(exception_ptr v) :
+		inline expected(std::exception_ptr v) :
 			_failed(true) {
-			new (&_error) exception_ptr(v);
+			new (&_error) std::exception_ptr(v);
 		}
 
 		inline ~expected() {
@@ -83,18 +80,18 @@ namespace proto {
 			return _value;
 		}
 
-		inline exception_ptr get_exception() const {
+		inline std::exception_ptr get_exception() const {
 			if (_failed)
 				return _error;
 			else
-				return make_exception_ptr(runtime_error("Expected is not a failure"));
+				return make_exception_ptr(std::runtime_error("Expected is not a failure"));
 		}
 
 		inline void rethrow() const {
 			if (_failed)
 				std::rethrow_exception(_error);
 			else
-				throw runtime_error("Expected is not a failure");
+				throw std::runtime_error("Expected is not a failure");
 		}
 
 		inline void swap(expected & v) {
@@ -111,7 +108,7 @@ namespace proto {
 				if (v._failed) {
 					auto t_error = std::move(v._error);
 					new (&v._value) _t(std::move(_value));
-					new (&v._error) exception_ptr(t_error);
+					new (&v._error) std::exception_ptr(t_error);
 					std::swap(_failed, v._failed);
 				}
 				else {
@@ -127,8 +124,8 @@ namespace proto {
 	struct expected < void > {
 	private:
 
-		exception_ptr _error;
-		bool _failed;
+		std::exception_ptr	_error;
+		bool				_failed;
 
 	public:
 
@@ -144,7 +141,7 @@ namespace proto {
 			_failed(v._failed)
 		{}
 
-		inline expected(exception_ptr v) :
+		inline expected(std::exception_ptr v) :
 			_error(v),
 			_failed(true)
 		{}
@@ -153,18 +150,18 @@ namespace proto {
 			return !_failed;
 		}
 
-		inline exception_ptr get_exception() const {
+		inline std::exception_ptr get_exception() const {
 			if (_failed)
 				return _error;
 			else
-				return make_exception_ptr(runtime_error("Expected is not a failure"));
+				return make_exception_ptr(std::runtime_error("Expected is not a failure"));
 		}
 
 		inline void rethrow() const {
 			if (_failed)
 				std::rethrow_exception(_error);
 			else
-				throw runtime_error("Expected is not a failure");
+				throw std::runtime_error("Expected is not a failure");
 		}
 
 		inline void swap(expected & v) {
@@ -175,12 +172,12 @@ namespace proto {
 	};
 
 	template < class _e, class ... _args_v >
-	inline exception_ptr expected_failed(const _args_v & ... ex_args) {
+	inline std::exception_ptr expected_failed(const _args_v & ... ex_args) {
 		static_assert (std::is_assignable < std::exception, _e >::value, "Unsuported exception type found");
 		return std::make_exception_ptr < _e >(_e(ex_args...));
 	}
 
-	inline exception_ptr expected_current_exception() {
+	inline std::exception_ptr expected_current_exception() {
 		return std::make_exception_ptr(std::current_exception());
 	}
 }

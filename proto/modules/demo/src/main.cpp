@@ -2,22 +2,31 @@
 #include <proto.h>
 
 #include <iostream>
+#include <string>
 
 using namespace proto;
 
-using test_event = event <>;
+void other_stuff(std::string const & xxx) {
+	std::cout << xxx << std::endl;
+}
 
-test_event on_mouse_move;
+void update (run_scheduler & scheduler) {
+	std::cout << "updatings" << std::endl;
 
-void handler() {
-	std::cout << "nothin";
+	auto rnd = rand() % 100;
+
+	if (rnd < 10) {
+		for (decltype(rnd) i = 0; i < rnd; ++i) {
+			scheduler.enqueue(&other_stuff, std::to_string(rnd));
+		}
+	}
 }
 
 int main(int arg_c, char * arg_v[]) {
 
-	on_mouse_move += &handler;
+	run_scheduler main_runner;
 
-	on_mouse_move.invoke();
+	main_runner.run(&update);
 
 	return 0;
 }

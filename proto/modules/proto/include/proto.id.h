@@ -35,7 +35,6 @@ namespace proto {
 		return id_t { (uint32_t)details::hash (v), v };
 	}
 
-
 	//constexpr id_t operator "" _id (const char * v) {
 	//	return id_t{ (uint32_t)details::hash (v), v };
 	//}

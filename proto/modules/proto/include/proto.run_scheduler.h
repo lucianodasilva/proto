@@ -10,12 +10,12 @@ namespace proto {
 	class run_scheduler : public scheduler_base {
 	public:
 
-		virtual bool contains_thread (const thread::id & id) const;
+		virtual bool contains_thread(const std::thread::id & id) const;
 
 		run_scheduler();
 		virtual ~run_scheduler();
 
-		void run(function < void(run_scheduler &) > const & callback );
+		void run(std::function < void(run_scheduler &) > const & callback );
 
 		void stop();
 	protected:
@@ -23,7 +23,7 @@ namespace proto {
 		void join();
 
 	private:
-		thread::id _thread_id;
+		std::thread::id				_thread_id;
 
 		void consume_tasks();
 	};

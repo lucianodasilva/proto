@@ -29,7 +29,7 @@ namespace proto {
 					scheduler_task task = {};
 
 					{
-						unique_lock < mutex > lock(scheduler_base::_task_mutex);
+						std::unique_lock < std::mutex > lock(scheduler_base::_task_mutex);
 						_condition.wait(
 							lock,
 							[this] { return _scheduler_running && !scheduler_base::_tasks.empty();}
@@ -38,7 +38,7 @@ namespace proto {
 						if (!_scheduler_running && scheduler_base::_tasks.empty())
 							return;
 
-						task = move(scheduler_base::_tasks.front());
+						task = std::move(scheduler_base::_tasks.front());
 						scheduler_base::_tasks.pop();
 					}
 
@@ -48,7 +48,7 @@ namespace proto {
 		}
 	}
 
-	bool scheduler::contains_thread(const thread::id & id) const {
+	bool scheduler::contains_thread(const std::thread::id & id) const {
 		for (auto & t : _workers)
 			if (t.get_id() == id)
 				return true;
