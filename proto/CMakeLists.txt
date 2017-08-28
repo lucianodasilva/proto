@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
+project(proto)
+
 set ( proto_path ${CMAKE_CURRENT_LIST_DIR})
 
 include (${proto_path}/cmake/environment.cmake)
@@ -19,6 +21,6 @@ add_static_module (proto 		${proto_path}/modules/proto)
 add_static_module (proto_gl 	${proto_path}/modules/proto_gl proto)
 
 # test executable
-add_executable_module (demo 	${proto_path}/modules/demo proto)
+add_executable_module (demo 	${proto_path}/modules/demo proto proto_gl)
 
 project (proto)

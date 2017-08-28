@@ -222,7 +222,7 @@ namespace proto {
 			//	SDL_GL_MakeCurrent(_implement->window, _implement->gl_context);
 		}
 
-		std::shared_ptr < window > window::create_window_instance(const char * title, const point & size_v) {
+		//std::shared_ptr < window > window::create_window_instance(const char * title, const point & size_v) {
 
 			//auto inst = make_shared < window >();
 			//
@@ -262,15 +262,15 @@ namespace proto {
 			//inst->_implement->window_id = SDL_GetWindowID(inst->_implement->window);
 			//
 			//return inst;
-			return nullptr;
-		}
+			//return nullptr;
+		//}
 
 		// glfw event handling
-		void char_callback(GLFWwindow* w, unsigned int char_v) {
+		//void char_callback(GLFWwindow* w, unsigned int char_v) {
 			
-		}
+		//}
 
-		std::shared_ptr < window > window::create(const string & title, const point & size_v) {
+		//std::shared_ptr < window > window::create(const string & title, const point & size_v) {
 			//auto & w_manager = window_manager::instance(); // force initialization of the singleton
 			//
 			//auto inst = create_window_instance(title, size_v);
@@ -278,8 +278,8 @@ namespace proto {
 			//
 			//return inst;
 
-			auto inst = new window();
-			auto glfw_window = glfwCreateWindow(size_v.x, size_v.y, title.c_str(), nullptr, nullptr);
+			//auto inst = new window();
+			//auto glfw_window = glfwCreateWindow(size_v.x, size_v.y, title.c_str(), nullptr, nullptr);
 
 			//glfwSetCharCallback(glfw_window, [inst](GLFWwindow * w, unsigned int c) {
 			//	inst->on_key_down.invoke(*inst, key_event_args{});
@@ -305,7 +305,7 @@ namespace proto {
 			
 			// register glfwevents
 			
-			return nullptr;
-		}
+			//return nullptr;
+		//}
 	}
 }
