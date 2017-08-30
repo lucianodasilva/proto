@@ -1,6 +1,5 @@
 
 #include "proto.gl.window.h"
-#include "proto.gl.window_manager.h"
 #include "proto.gl.debug.h"
 
 #include <memory>

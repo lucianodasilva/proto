@@ -1,45 +1,44 @@
-#include "proto.run_scheduler.h"
+#include "proto.sync_scheduler.h"
 
 #include <memory>
 
 namespace proto {
 
-	bool run_scheduler::contains_thread(const std::thread::id & id) const {
+	bool sync_scheduler::has_thread(const std::thread::id & id) const {
 		return id == _thread_id;
 	}
 
-	run_scheduler::run_scheduler() 
+	sync_scheduler::sync_scheduler() 
 		: scheduler_base()
 	{
 		_scheduler_running = false;
 	}
 
-	run_scheduler::~run_scheduler() {
+	sync_scheduler::~sync_scheduler() {
 		if (_scheduler_running)
 			join();
 	}
 
-	void run_scheduler::run( std::function < void ( run_scheduler & ) > const & callback ) {
+	void sync_scheduler::run() {
 		_thread_id = std::this_thread::get_id();
 		_scheduler_running = true;
 
 		for (;_scheduler_running;) {
 			consume_tasks();
-			callback(*this);
 		}
 
 	}
 
-	void run_scheduler::stop() {
+	void sync_scheduler::stop() {
 		join();
 	}
 
-	void run_scheduler::join() {
+	void sync_scheduler::join() {
 		scheduler_base::_scheduler_running = false;
 		consume_tasks();
 	}
 
-	void run_scheduler::consume_tasks() {
+	void sync_scheduler::consume_tasks() {
 
 		// consume available tasks
 		for (;;) {

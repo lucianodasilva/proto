@@ -4,21 +4,27 @@
 
 namespace proto {
 
-	void scheduler_base::notify_one() {}
+	void scheduler_base::try_consume_task() {}
 
 	scheduler::~scheduler(){
-		scheduler_base::_scheduler_running = false;
-		
-		_condition.notify_all();
-
-		for (auto & worker : _workers)
-			worker.join();
+		join();
 	}
 
-	scheduler::scheduler(unsigned int thread_count) :
-		scheduler_base()
-	{
+	void scheduler::join() {
+		if (scheduler_base::_scheduler_running) {
+			scheduler_base::_scheduler_running = false;
 
+			_condition.notify_all();
+
+			for (auto & worker : _workers) {
+				if (worker.joinable())
+					worker.join();
+			}
+		}
+	}
+
+	void scheduler::run (unsigned int thread_count)
+	{
 		for (
 			unsigned int i = 0; i < thread_count; ++i
 		) {
@@ -48,7 +54,7 @@ namespace proto {
 		}
 	}
 
-	bool scheduler::contains_thread(const std::thread::id & id) const {
+	bool scheduler::has_thread(const std::thread::id & id) const {
 		for (auto & t : _workers)
 			if (t.get_id() == id)
 				return true;
@@ -56,7 +62,7 @@ namespace proto {
 		return false;
 	}
 
-	void scheduler::notify_one() {
+	void scheduler::try_consume_task() {
 		_condition.notify_one();
 	}
 

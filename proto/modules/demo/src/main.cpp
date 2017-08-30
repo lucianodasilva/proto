@@ -6,27 +6,14 @@
 
 using namespace proto;
 
-void other_stuff(std::string const & xxx) {
-	std::cout << xxx << std::endl;
-}
-
-void update (run_scheduler & scheduler) {
-	std::cout << "updatings" << std::endl;
-
-	auto rnd = rand() % 100;
-
-	if (rnd < 10) {
-		for (decltype(rnd) i = 0; i < rnd; ++i) {
-			scheduler.enqueue(&other_stuff, std::to_string(rnd));
-		}
-	}
-}
 
 int main(int arg_c, char * arg_v[]) {
 
-	run_scheduler main_runner;
+	proto::run_application([](application_base & app) {
 
-	main_runner.run(&update);
+		std::cout << "this cenas heres" << std::endl;
+
+	});
 
 	return 0;
 }

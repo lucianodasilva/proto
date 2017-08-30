@@ -3,7 +3,6 @@
 
 #include "proto.details.h"
 #include "proto.id.h"
-#include "proto.singleton_base.h"
 
 #include <future>
 #include <queue>
@@ -17,9 +16,11 @@ namespace proto {
 	class scheduler_base : public non_copyable {
 	public:
 
-		virtual bool contains_thread (const std::thread::id & id) const = 0;
+		virtual bool has_thread (const std::thread::id & id) const = 0;
 
 		virtual ~scheduler_base() = default;
+
+		virtual void join() = 0;
 
 		template < class _ft_t, class ... _args_t >
 		inline auto enqueue(_ft_t && f, _args_t && ... args) 
@@ -41,7 +42,7 @@ namespace proto {
 				});
 			}
 
-			notify_one();
+			try_consume_task();
 			return task_future;
 		}
 
@@ -50,20 +51,22 @@ namespace proto {
 		std::mutex						_task_mutex;
 		std::atomic < bool >			_scheduler_running = true;
 
-		virtual void notify_one();
+		virtual void try_consume_task();
 	};
 
 	class scheduler : public scheduler_base {
 	public:
 
-		scheduler(unsigned int thread_count = std::thread::hardware_concurrency());
+		virtual bool has_thread(const std::thread::id & id) const override;
+
+		void run (unsigned int thread_count = std::thread::hardware_concurrency());
 		virtual ~scheduler();
 
-		virtual bool contains_thread(const std::thread::id & id) const override;
+		virtual void join() override;
 
 	protected:
 
-		virtual void notify_one() override;
+		virtual void try_consume_task() override;
 
 	private:
 		std::vector < std::thread >	_workers;

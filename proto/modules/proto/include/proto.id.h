@@ -39,6 +39,10 @@ namespace proto {
 	//	return id_t{ (uint32_t)details::hash (v), v };
 	//}
 
+	inline bool operator == (const id_t & v1, const id_t & v2) {
+		return v1.hash == v2.hash;
+	}
+
 	inline bool operator < (const id_t & v1, const id_t & v2) {
 		return v1.hash < v2.hash;
 	}

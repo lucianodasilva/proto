@@ -1,6 +1,5 @@
 
 #include "proto.gl.debug.h"
-#include "proto.gl.window_manager.h"
 #include "proto.gl.window.h"
 
 using namespace std;
@@ -8,13 +7,13 @@ using namespace std;
 namespace proto {
 	namespace gl {
 
-		window_manager::window_manager() : singleton_base < window_manager >() {
-			initialize();
-		}
+		//window_manager::window_manager() {
+		//	initialize();
+		//}
 
-		window_manager::~window_manager() {}
+		//window_manager::~window_manager() {}
 
-		void window_manager::initialize() {
+		//void window_manager::initialize() {
 
 			////if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 			////	debug_print << "failed to initialize SDL system";
@@ -46,9 +45,9 @@ namespace proto {
 
 			// should perhaps setup VSync with the following code
 			// SDL_GL_SetSwapInterval(1)
-		}
+		//}
 
-		bool window_manager::handle_windows() {
+		//bool window_manager::handle_windows() {
 			//SDL_Event e;
 			//
 			//// empty event pool
@@ -99,13 +98,13 @@ namespace proto {
 
 			//return _windows.size() > 1 /* cause of the dummy window */;
 
-			return true;
-		}
+		//	return true;
+		//}
 
-		void window_manager::register_window(shared_ptr < window > w) {
-			lock_guard < mutex > lock(_new_mutex);
-			_new.emplace_back(w);
-		}
+		//void window_manager::register_window(shared_ptr < window > w) {
+		//	lock_guard < mutex > lock(_new_mutex);
+		//	_new.emplace_back(w);
+		//}
 
 	}
 }
