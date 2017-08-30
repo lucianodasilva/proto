@@ -4,6 +4,7 @@
 
 #include <memory>
 
+#include "proto.service.h"
 #include "proto.sync_scheduler.h"
 
 namespace proto {
@@ -11,12 +12,10 @@ namespace proto {
 	class application_base : public non_copyable  {
 	public:
 
-		template < class _ft_t, class ... _args_t >
-		inline auto enqueue_task(_ft_t && f, _args_t && ... args) {
-			return _scheduler.enqueue(std::forward(f), std::forward(args)...);
-		}
+		scheduler_base & scheduler();
+		service_manager & services();
 
-		void run();
+		expected < void > run();
 		void exit();
 
 		virtual void update() = 0;
@@ -24,7 +23,9 @@ namespace proto {
 	private:
 
 		std::atomic < bool >	_is_running = false;
+
 		sync_scheduler			_scheduler;
+		service_manager			_services;
 
 	};
 

@@ -63,10 +63,11 @@ namespace proto {
 		std::thread						_runner;
 	};
 
-	class service_manager {
+	class service_manager : public non_copyable {
 	public:
 
 		expected < void > initialize();
+
 		void update();
 
 		service_base * find_service(id_t const & id) const;

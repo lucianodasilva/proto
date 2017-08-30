@@ -8,7 +8,8 @@
 #include "proto.details.h"
 #include "proto.event.h"
 #include "proto.id.h"
-#include "proto.sync_scheduler.h"
 #include "proto.scheduler.h"
+#include "proto.service.h"
+#include "proto.sync_scheduler.h"
 
 #endif
