@@ -3,17 +3,15 @@
 #ifndef	_proto_gl_window_h_
 #define _proto_gl_window_h_
 
-#include <memory>
-
 #include "proto.gl.window_events.h"
+
+#include <memory>
 
 namespace proto {
 	namespace gl {
 
 		class window {
 		public:
-
-			window();
 
 			mouse_down_event	on_mouse_down;
 			mouse_up_event		on_mouse_up;
@@ -34,32 +32,18 @@ namespace proto {
 
 			window_resize_event on_window_resize;
 
-			~window();
+			virtual ~window() = default;
 
-			void show();
-			void hide();
+			virtual void show() = 0;
+			virtual void hide() = 0;
 
-			void close();
+			virtual void close() = 0;
 
-			bool is_visible() const;
-			bool is_closed() const;
+			virtual bool is_visible() const = 0;
+			virtual bool is_closed() const = 0;
 
-			point size() const;
-			void size(const point & p);
-
-			void make_current() const;
-
-		private:
-
-			std::unique_ptr < class window_imp > _implement;
-
-			friend class window_manager;
-
-			void * context() const;
-			void swap_context() const;
-
-			using external_event = void *;
-			void handle_event(external_event e);
+			virtual point size() const = 0;
+			virtual void size(const point & p) = 0;
 
 		};
 	}

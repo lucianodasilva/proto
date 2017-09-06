@@ -6,14 +6,10 @@ namespace proto {
 		return _scheduler;
 	}
 
-	service_manager & application_base::services() {
-		return _services;
-	}
-
 	expected < void > application_base::run() {
 		_is_running = true;
 
-		auto init_result = _services.initialize();
+		auto init_result = this->initialize();
 
 		// if service initialization failed
 		// return failure reason
@@ -22,9 +18,7 @@ namespace proto {
 
 		// loop as long as _is_running is true
 		for (;_is_running;) {
-
 			_scheduler.consume_tasks();
-			_services.update();
 
 			this->update();
 		}
@@ -32,8 +26,26 @@ namespace proto {
 		return {};
 	}
 
+	expected < void > application_base::initialize(){
+		return {};
+	}
+
+	void application_base::tick() {
+		_scheduler.consume_tasks(); 
+
+		this->update();
+	}
+
 	void application_base::exit() {
 		_is_running = false;
+	}
+
+	application::application(std::function < void(application_base &) > const & update_callback)
+		: _update_callback(update_callback) {}
+
+	void application::update() {
+		if (_update_callback)
+			_update_callback(*this);
 	}
 
 }

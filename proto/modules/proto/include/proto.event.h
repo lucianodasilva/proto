@@ -58,9 +58,9 @@ namespace proto {
 		}
 
 		template < class ... _invoke_args_tv >
-		inline void async_invoke(proto::scheduler_base & event_scheduler, _invoke_args_tv && ... argv) const {
+		inline void scheduler_invoke(proto::scheduler_base & event_scheduler, _invoke_args_tv && ... argv) const {
 			event_scheduler.enqueue ([this, &argv...] {
-				invoke(sender, std::move(argv...));
+				invoke(argv...);
 			});
 		}
 

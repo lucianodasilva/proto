@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "proto.details.expected.h"
+#include "proto.details.mask.h"
 
 namespace proto {
 

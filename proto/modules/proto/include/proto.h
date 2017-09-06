@@ -9,7 +9,6 @@
 #include "proto.event.h"
 #include "proto.id.h"
 #include "proto.scheduler.h"
-#include "proto.service.h"
 #include "proto.sync_scheduler.h"
 
 #endif

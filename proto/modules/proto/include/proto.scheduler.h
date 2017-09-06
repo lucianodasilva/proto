@@ -24,10 +24,10 @@ namespace proto {
 
 		template < class _ft_t, class ... _args_t >
 		inline auto enqueue(_ft_t && f, _args_t && ... args) 
-			-> std::future < typename std::result_of < _ft_t(_args_t ...)>::type >
+			-> std::future < std::result_of_t < _ft_t(_args_t ...) > >
 		{
 
-			using ret_t = typename std::result_of < _ft_t(_args_t ...)>::type;
+			using ret_t = std::result_of_t < _ft_t(_args_t ...) >;
 
 			auto task = std::make_shared < std::packaged_task < ret_t() > >(
 				std::bind(std::forward < _ft_t >(f), std::forward < _args_t >(args) ...)
@@ -72,6 +72,33 @@ namespace proto {
 		std::vector < std::thread >	_workers;
 		std::condition_variable	_condition;
 	};
+
+	template < class _ft_t, class ... _args_t >
+	inline auto scheduler_dispatch(
+		scheduler_base & scheduler, 
+		_ft_t && f, 
+		_args_t && ... args
+	){
+		using ret_t = std::result_of_t < _ft_t(_args_t ...) >;
+
+		if (scheduler.has_thread(std::this_thread::get_id())) {
+
+			auto task = std::packaged_task < ret_t() >(
+				std::bind(
+					std::forward < _ft_t >(f), 
+					std::forward < _args_t >(args) ...
+				)
+			);
+
+			auto ret_future = task.get_future();
+
+			task();
+
+			return ret_future;
+		} else {
+			return scheduler.enqueue(f, args...);
+		}
+	}
 
 }
 

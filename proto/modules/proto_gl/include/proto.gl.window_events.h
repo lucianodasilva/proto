@@ -21,29 +21,20 @@ namespace proto {
 			right
 		};
 
-
-		inline mouse_buttons operator | (mouse_buttons m1, mouse_buttons m2) {
-			return (mouse_buttons)((size_t)m1 | (size_t)m2);
-		}
-
-		inline bool operator & (mouse_buttons m1, mouse_buttons m2) {
-			return ((size_t)m1 & (size_t)m2) != 0;
-		}
-
-
-
 		struct mouse_event_args {
-			point location;
-			mouse_buttons button;
+			point					location;
+			mask < mouse_buttons >	button;
 		};
 
 		struct key_event_args {
 
 		};
 
-		using mouse_down_event = window_event < mouse_event_args >;
-		using mouse_up_event = window_event < mouse_event_args >;
-		using mouse_move_event = window_event < mouse_event_args >;
+		using mouse_event = window_event < mouse_event_args >;
+
+		using mouse_down_event = mouse_event;
+		using mouse_up_event = mouse_event;
+		using mouse_move_event = mouse_event;
 
 		using key_down_event = window_event < key_event_args >;
 		using key_up_event = window_event < key_event_args >;

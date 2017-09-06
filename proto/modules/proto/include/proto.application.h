@@ -4,7 +4,6 @@
 
 #include <memory>
 
-#include "proto.service.h"
 #include "proto.sync_scheduler.h"
 
 namespace proto {
@@ -13,32 +12,31 @@ namespace proto {
 	public:
 
 		scheduler_base & scheduler();
-		service_manager & services();
 
 		expected < void > run();
 		void exit();
 
 		virtual void update() = 0;
 
+	protected:
+
+		virtual expected < void > initialize();
+		virtual void tick();
+
 	private:
 
 		std::atomic < bool >	_is_running = false;
 
 		sync_scheduler			_scheduler;
-		service_manager			_services;
 
 	};
 
 	class application : public application_base {
 	public:
 
-		application(std::function < void(application_base &) > const & update_callback)
-			: _update_callback(update_callback) {}
+		application(std::function < void(application_base &) > const & update_callback);
 
-		virtual inline void update() override {
-			if (_update_callback)
-				_update_callback(*this);
-		}
+		virtual void update() override;
 
 	private:
 

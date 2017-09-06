@@ -36,12 +36,8 @@ namespace proto {
 			_value(std::move(v)),
 			_failed(false) {}
 
-		inline expected(const expected & v) :
-			_failed(v._failed) {
-			if (_failed)
-				new (&_error) std::exception_ptr(v._error);
-			else
-				new (&_value) _t(v._value);
+		inline expected(const expected & v){
+			this->operator =(v);
 		}
 
 		inline expected(expected && v) :
@@ -62,6 +58,17 @@ namespace proto {
 				_value.~_t();
 			else
 				_error.~exception_ptr();
+		}
+
+		inline expected & operator = (const expected & v) {
+			_failed = v._failed;
+
+			if (_failed)
+				new (&_error) std::exception_ptr(v._error);
+			else
+				new (&_value) _t(v._value);
+
+			return *this;
 		}
 
 		inline operator bool() {
@@ -131,10 +138,10 @@ namespace proto {
 
 		inline expected() : _failed(false) {}
 
-		inline expected(const expected & v) :
-			_error(v._error),
-			_failed(v._failed)
-		{}
+		inline expected(const expected & v)
+		{
+			this->operator=(v);
+		}
 
 		inline expected(expected && v) :
 			_error(std::move(v._error)),
@@ -145,6 +152,13 @@ namespace proto {
 			_error(v),
 			_failed(true)
 		{}
+
+		inline expected & operator = (const expected & v) {
+			_failed = v._failed;
+			_error = v._error;
+
+			return *this;
+		}
 
 		inline operator bool() {
 			return !_failed;
