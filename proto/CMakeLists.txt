@@ -10,7 +10,7 @@ include (${proto_path}/cmake/cmake_modules/modules.cmake)
 # setup environment
 check_environment ()
 
-# enable c++11
+# enable c++14
 set(CMAKE_CXX_STANDARD 14)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -21,6 +21,6 @@ add_static_module (proto 		${proto_path}/modules/proto)
 add_static_module (proto_gl 	${proto_path}/modules/proto_gl proto)
 
 # test executable
-add_executable_module (demo 	${proto_path}/modules/demo proto proto_gl)
+# add_executable_module (demo 	${proto_path}/modules/demo proto proto_gl)
 
 project (proto)

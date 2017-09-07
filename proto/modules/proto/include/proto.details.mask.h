@@ -9,7 +9,7 @@ namespace proto {
 	template < class _enum_t >
 	struct mask {
 	public:
-		static_assert (std::is_enum_v < _enum_t >, "masks must be of enum types");
+		static_assert (std::is_enum < _enum_t >::value, "masks must be of enum types");
 
 		using underlying_type = std::underlying_type_t < _enum_t >;
 

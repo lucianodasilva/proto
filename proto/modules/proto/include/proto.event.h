@@ -46,7 +46,7 @@ namespace proto {
 
 		template < class ... _invoke_args_tv >
 		inline void invoke(_invoke_args_tv && ... argv) const {
-			invoker_t::handler_vector_t handlers;
+			typename invoker_t::handler_vector_t handlers;
 
 			{
 				std::lock_guard < spin_mutex > lock(_handler_mutex);
@@ -65,18 +65,18 @@ namespace proto {
 		}
 
 		inline void operator += (handler_t && handler) {
-			lock_guard < spin_mutex > lock(_handler_mutex);
+			std::lock_guard < spin_mutex > lock(_handler_mutex);
 			_handlers.emplace_back(
-				make_shared < handler_t > (std::move (handler))
+				std::make_shared < handler_t > (std::move (handler))
 			);
 		}
 
 		inline void operator -= (handler_t && handler) {
-			lock_guard < spin_mutex > lock(_handler_mutex);
+			std::lock_guard < spin_mutex > lock(_handler_mutex);
 			auto it = find(
 				_handlers.begin(),
 				_handlers.end(),
-				move (handler)
+				std::move (handler)
 			);
 
 			if (it != _handlers.end())

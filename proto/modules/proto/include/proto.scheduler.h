@@ -49,7 +49,7 @@ namespace proto {
 	protected:
 		std::queue < scheduler_task >	_tasks;
 		std::mutex						_task_mutex;
-		std::atomic < bool >			_scheduler_running = true;
+		std::atomic < bool >			_scheduler_running;
 
 		virtual void try_consume_task();
 	};

@@ -10,7 +10,7 @@ namespace proto {
 	class sync_scheduler : public scheduler_base {
 	public:
 
-		virtual bool has_thread(const std::thread::id & id) const;
+		virtual bool has_thread(const std::thread::id & id) const override;
 
 		sync_scheduler();
 		virtual ~sync_scheduler();

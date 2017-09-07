@@ -16,16 +16,8 @@ macro (check_environment)
 	else ()
 		message (FATAL_ERROR "unsuported target system")
 	endif ()
-
-	add_definitions (
-		-D${proto_os_name}
-		-D${proto_api_name}
-		-D${proto_cpu_name}
-	)
 	
 	set (${proto_os_name}  TRUE)
-	set (${proto_api_name} TRUE)
-	set (${proto_cpu_name} TRUE)
 
 	# workaround for cmake bug with CMAKE_SYSTEM_PROCESSOR on windows
 	if (PROTO_OS_WINDOWS)
@@ -51,6 +43,19 @@ macro (check_environment)
 			message (FATAL_ERROR "unsuported cpu architecture")
 		endif()
 	endif()	
+
+	set (${proto_api_name} TRUE)
+	set (${proto_cpu_arch} TRUE)
+
+	message ("OS: ${proto_os_name}")
+	message ("API: ${proto_api_name}")
+	message ("CPU: ${proto_cpu_arch}")
+
+	add_definitions (
+		-D${proto_os_name}
+		-D${proto_api_name}
+		-D${proto_cpu_arch}
+	)
 
 	if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 		add_definitions (-DPROTO_COMPILER_MSVC)

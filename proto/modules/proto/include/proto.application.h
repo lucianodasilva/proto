@@ -25,7 +25,7 @@ namespace proto {
 
 	private:
 
-		std::atomic < bool >	_is_running = false;
+		std::atomic < bool >	_is_running;
 
 		sync_scheduler			_scheduler;
 
