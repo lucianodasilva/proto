@@ -21,6 +21,6 @@ add_static_module (proto 		${proto_path}/modules/proto)
 add_static_module (proto_gl 	${proto_path}/modules/proto_gl proto)
 
 # test executable
-# add_executable_module (demo 	${proto_path}/modules/demo proto proto_gl)
+add_executable_module (demo 	${proto_path}/modules/demo proto proto_gl)
 
 project (proto)
