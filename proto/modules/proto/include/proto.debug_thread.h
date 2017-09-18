@@ -13,4 +13,16 @@
 	}
 #endif
 
+#ifndef _DEBUG
+#	define proto_dispatcher_guard(_dispatcher_)
+#else
+#	define proto_dispatcher_guard(_dispatcher_) proto_debug_assert_break(_dispatcher_.has_thread (std::this_thread::get_id ()))
+#endif
+
+#ifndef _DEBUG
+#	define proto_thread_guard(_thread_id_)
+#else
+#	define proto_thread_guard(_thread_id_) proto_debug_assert_break (_thread_id_ != std::this_thread::get_id ())
+#endif
+
 #endif

@@ -4,7 +4,7 @@
 #define _proto_event_h_
 
 #include "proto.details.h"
-#include "proto.scheduler.h"
+#include "proto.dispatcher.h"
 
 namespace proto {
 
@@ -58,8 +58,8 @@ namespace proto {
 		}
 
 		template < class ... _invoke_args_tv >
-		inline void scheduler_invoke(proto::scheduler_base & event_scheduler, _invoke_args_tv && ... argv) const {
-			event_scheduler.enqueue ([this, &argv...] {
+		inline void dispatcher_invoke(proto::dispatcher_base & event_dispatcher, _invoke_args_tv && ... argv) const {
+			event_dispatcher.enqueue ([this, &argv...] {
 				invoke(argv...);
 			});
 		}

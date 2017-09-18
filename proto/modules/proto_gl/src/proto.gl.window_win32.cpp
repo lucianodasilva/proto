@@ -164,19 +164,20 @@ namespace proto {
 			::DestroyWindow(_handle);
 		}
 
-		void window_win32::handle_windows_events() {
+		void window_win32::handle_events() {
 			MSG msg = {};
 
 			while (PeekMessage(&msg, _handle, 0, 0, PM_REMOVE) > 0) {
 				::TranslateMessage(&msg);
 				::DispatchMessage(&msg);
 			}
+
+			this->on_window_update.invoke(*this);
 		}
 
 		void window_win32::show()
 		{
-			scheduler_dispatch(
-				_application->scheduler(),
+			_application->dispatcher().run_or_enqueue(
 				[this]() {
 					::ShowWindow(this->_handle, SW_SHOW);
 				}
@@ -185,8 +186,7 @@ namespace proto {
 
 		void window_win32::hide()
 		{
-			scheduler_dispatch(
-				_application->scheduler(),
+			_application->dispatcher().run_or_enqueue(
 				[this] {
 					::ShowWindow(this->_handle, SW_HIDE);
 				}
@@ -200,8 +200,7 @@ namespace proto {
 
 		bool window_win32::is_visible() const
 		{
-			auto f_vis = scheduler_dispatch(
-				_application->scheduler(),
+			auto f_vis = _application->dispatcher().run_or_enqueue(
 				[this] {
 					return ::IsWindowVisible(this->_handle) == TRUE;
 				}
@@ -218,8 +217,7 @@ namespace proto {
 
 		point window_win32::size() const
 		{
-			auto f_size = scheduler_dispatch(
-				_application->scheduler(),
+			auto f_size = _application->dispatcher().run_or_enqueue(
 				[this] {
 					RECT rct;
 					GetWindowRect(this->_handle, &rct);
@@ -235,8 +233,7 @@ namespace proto {
 
 		void window_win32::size(const point & p)
 		{
-			scheduler_dispatch(
-				_application->scheduler(),
+			_application->dispatcher().run_or_enqueue(
 				[this, p]() {
 					::SetWindowPos(this->_handle, nullptr, 0, 0, p.x, p.y, SWP_NOREPOSITION);
 				}

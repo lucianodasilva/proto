@@ -3,13 +3,10 @@
 #define _proto_gl_window_event_h_
 
 #include "proto.h"
-
-#include <glm/glm.hpp>
+#include "proto.gl.details.h"
 
 namespace proto {
 	namespace gl {
-
-		using point = glm::ivec2;
 
 		template < class ... _argv_tv >
 		using window_event = event < class window, _argv_tv ... >;

@@ -8,9 +8,6 @@
 #include "proto.gl.window.h"
 
 #define VC_EXTRALEAN
-#define WIN32_LEAN_AND_MEAN
-
-#include <Windows.h>
 #include <windowsx.h>
 
 namespace proto {
@@ -27,7 +24,7 @@ namespace proto {
 
 			virtual ~window_win32();
 
-			void handle_windows_events();
+			void handle_events();
 
 			// Inherited via window
 			virtual void show() override;

@@ -1,13 +1,34 @@
 #include "proto.application.h"
+#include "proto.dispatcher.h"
 
 namespace proto {
 
-	scheduler_base & application_base::scheduler() {
-		return _scheduler;
+	expected < void > application_base::initialize() {
+		return {};
 	}
 
-	expected < void > application_base::run() {
-		_is_running = true;
+	application::application()
+		: _running(false)
+	{}
+
+	application::~application() {
+		this->exit();
+	}
+
+	dispatcher_base & application::dispatcher() {
+		return _dispatcher;
+	}
+
+	std::atomic < bool > const & application::is_running() const {
+		return _running;
+	}
+
+	expected < void > application::run() {
+		_running = true;
+
+		auto_guard([this] {
+			_running = false;
+		});
 
 		auto init_result = this->initialize();
 
@@ -17,35 +38,25 @@ namespace proto {
 			return init_result;
 
 		// loop as long as _is_running is true
-		for (;_is_running;) {
-			_scheduler.consume_tasks();
-
+		for (;_running;) {
+			_dispatcher.consume_tasks();
 			this->update();
 		}
 
 		return {};
 	}
 
-	expected < void > application_base::initialize(){
-		return {};
+	void application::exit() {
+		_running = false;
 	}
 
-	void application_base::tick() {
-		_scheduler.consume_tasks(); 
+	namespace details {
+		callback_application::callback_application(application_update_callback_t && callback)
+			: _callback(callback) {}
 
-		this->update();
+		void callback_application::update() {
+			if (_callback)
+				_callback(*this);
+		}
 	}
-
-	void application_base::exit() {
-		_is_running = false;
-	}
-
-	application::application(std::function < void(application_base &) > const & update_callback)
-		: _update_callback(update_callback) {}
-
-	void application::update() {
-		if (_update_callback)
-			_update_callback(*this);
-	}
-
 }

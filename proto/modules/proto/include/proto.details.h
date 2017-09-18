@@ -3,15 +3,15 @@
 #ifndef	_proto_details_h_
 #define _proto_details_h_
 
-#include <atomic>
 #include <fstream>
 #include <functional>
-#include <mutex>
 #include <string>
 #include <vector>
 
+#include "proto.details.dispatch.h"
 #include "proto.details.expected.h"
 #include "proto.details.mask.h"
+#include "proto.details.thread.h"
 
 namespace proto {
 
@@ -22,19 +22,6 @@ namespace proto {
 
 		non_copyable(const non_copyable &) = delete;
 		non_copyable & operator = (const non_copyable &) = delete;
-	};
-
-	struct spin_mutex {
-	private:
-		std::atomic_flag _lockless_flag = ATOMIC_FLAG_INIT;
-	public:
-		inline void lock() {
-			while (_lockless_flag.test_and_set(std::memory_order_acquire)) {}
-		}
-
-		inline void unlock() {
-			_lockless_flag.clear(std::memory_order_release);
-		}
 	};
 
 	namespace details {

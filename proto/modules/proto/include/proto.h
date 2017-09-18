@@ -6,9 +6,9 @@
 #include "proto.application.h"
 #include "proto.debug.h"
 #include "proto.details.h"
+#include "proto.dispatcher.h"
 #include "proto.event.h"
 #include "proto.id.h"
-#include "proto.scheduler.h"
-#include "proto.sync_scheduler.h"
+#include "proto.swap_locking.h"
 
 #endif

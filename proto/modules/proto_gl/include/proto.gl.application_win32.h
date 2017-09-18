@@ -14,28 +14,35 @@
 namespace proto {
 	namespace gl {
 
-		class application_base_win32 : public gl::application_base {
+		class application_win32 : 
+			public proto::gl::application_base
+		{
 		public:
 
-			scheduler_base & render_scheduler();
+			virtual ~application_win32();
 
-			virtual expected < window * > create_window(std::string const & title, point const & size_v) override;
+			expected < window * > create_window(std::string const & title, point const & size_v);
+
+			dispatcher_base & dispatcher() override;
+			std::atomic < bool > const & is_running() const override;
+
+			expected < void > run() override;
+			void exit() override;
 
 		protected:
-
+		
 			virtual expected < void > initialize() override;
-			virtual void tick() override;
-
+		
 		private:
 
-			std::vector < std::unique_ptr < class window_win32 > > 
-						_windows;
-
-			spin_mutex		_window_vector_mutex;
-
-			sync_scheduler	_render_scheduler;
+			std::atomic < bool >	_running;
 		
+			std::vector < std::unique_ptr < class window_win32 > > 
+									_windows;
+			spin_mutex				_window_vector_mutex;
 
+			proto::dispatcher <>	_logic_dispatcher;
+			std::thread				_logic_thread;
 		};
 
 	}
