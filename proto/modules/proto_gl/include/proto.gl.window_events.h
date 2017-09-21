@@ -27,6 +27,7 @@ namespace proto {
 
 		};
 
+		// these events should be executed in the logic thread
 		using mouse_event = window_event < mouse_event_args >;
 
 		using mouse_down_event = mouse_event;
@@ -41,10 +42,12 @@ namespace proto {
 		using window_show_event = window_event <>;
 		using window_hide_event = window_event <>;
 
-		using window_render_event = window_event <>;
 		using window_update_event = window_event <>;
 
 		using window_resize_event = window_event < point >;
+
+		// this event is the exceptional execution in the render thread
+		using window_render_event = window_event <>;
 	}
 }
 

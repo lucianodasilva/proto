@@ -15,8 +15,8 @@ namespace proto {
 		this->exit();
 	}
 
-	dispatcher_base & application::dispatcher() {
-		return _dispatcher;
+	dispatcher_base * application::dispatcher() {
+		return &_dispatcher;
 	}
 
 	std::atomic < bool > const & application::is_running() const {
@@ -50,13 +50,4 @@ namespace proto {
 		_running = false;
 	}
 
-	namespace details {
-		callback_application::callback_application(application_update_callback_t && callback)
-			: _callback(callback) {}
-
-		void callback_application::update() {
-			if (_callback)
-				_callback(*this);
-		}
-	}
 }

@@ -41,6 +41,8 @@ namespace proto {
 
 			virtual void size(const point & p) override;
 
+			application_base * application();
+
 			static expected < std::unique_ptr < window_win32 > > create(
 				application_base * application,
 				std::string const & title, 

@@ -23,11 +23,13 @@ namespace proto {
 
 			expected < window * > create_window(std::string const & title, point const & size_v);
 
-			dispatcher_base & dispatcher() override;
+			dispatcher_base * dispatcher() override;
 			std::atomic < bool > const & is_running() const override;
 
 			expected < void > run() override;
 			void exit() override;
+
+			dispatcher_base * render_dispatcher() override;
 
 		protected:
 		
@@ -43,6 +45,8 @@ namespace proto {
 
 			proto::dispatcher <>	_logic_dispatcher;
 			std::thread				_logic_thread;
+
+			proto::dispatcher <>	_render_dispatcher;
 		};
 
 	}

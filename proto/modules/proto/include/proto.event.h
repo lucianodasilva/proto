@@ -58,8 +58,8 @@ namespace proto {
 		}
 
 		template < class ... _invoke_args_tv >
-		inline void dispatcher_invoke(proto::dispatcher_base & event_dispatcher, _invoke_args_tv && ... argv) const {
-			event_dispatcher.enqueue ([this, &argv...] {
+		inline void dispatcher_invoke(proto::dispatcher_base * event_dispatcher, _invoke_args_tv && ... argv) const {
+			event_dispatcher->enqueue ([this, &argv...] {
 				invoke(argv...);
 			});
 		}

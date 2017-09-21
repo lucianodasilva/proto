@@ -13,6 +13,7 @@ namespace proto {
 
 			virtual expected < window * > create_window(std::string const & title, point const & size_v) = 0;
 
+			virtual dispatcher_base * render_dispatcher() = 0;
 		};
 
 	}

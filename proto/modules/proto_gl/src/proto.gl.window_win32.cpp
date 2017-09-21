@@ -54,7 +54,8 @@ namespace proto {
 			mouse_event & event,
 			native_event const & e
 		) {
-			event.invoke(
+			event.dispatcher_invoke(
+				e.window->application()->dispatcher(),
 				*e.window, 
 				get_mouse_event_args (e)
 			);
@@ -114,7 +115,10 @@ namespace proto {
 			case WM_CLOSE:
 			{
 				auto win = get_window_userdata(hwnd);
-				win->on_window_close.invoke(*win);
+				win->on_window_close.dispatcher_invoke(
+					e.window->application()->dispatcher(),
+					*win
+				);
 			}
 
 			default:
@@ -171,13 +175,11 @@ namespace proto {
 				::TranslateMessage(&msg);
 				::DispatchMessage(&msg);
 			}
-
-			this->on_window_update.invoke(*this);
 		}
 
 		void window_win32::show()
 		{
-			_application->dispatcher().run_or_enqueue(
+			_application->render_dispatcher()->run_or_enqueue(
 				[this]() {
 					::ShowWindow(this->_handle, SW_SHOW);
 				}
@@ -186,7 +188,7 @@ namespace proto {
 
 		void window_win32::hide()
 		{
-			_application->dispatcher().run_or_enqueue(
+			_application->render_dispatcher()->run_or_enqueue(
 				[this] {
 					::ShowWindow(this->_handle, SW_HIDE);
 				}
@@ -200,7 +202,7 @@ namespace proto {
 
 		bool window_win32::is_visible() const
 		{
-			auto f_vis = _application->dispatcher().run_or_enqueue(
+			auto f_vis = _application->render_dispatcher()->run_or_enqueue(
 				[this] {
 					return ::IsWindowVisible(this->_handle) == TRUE;
 				}
@@ -217,7 +219,7 @@ namespace proto {
 
 		point window_win32::size() const
 		{
-			auto f_size = _application->dispatcher().run_or_enqueue(
+			auto f_size = _application->render_dispatcher()->run_or_enqueue(
 				[this] {
 					RECT rct;
 					GetWindowRect(this->_handle, &rct);
@@ -233,11 +235,15 @@ namespace proto {
 
 		void window_win32::size(const point & p)
 		{
-			_application->dispatcher().run_or_enqueue(
+			_application->render_dispatcher()->run_or_enqueue(
 				[this, p]() {
 					::SetWindowPos(this->_handle, nullptr, 0, 0, p.x, p.y, SWP_NOREPOSITION);
 				}
 			);
+		}
+
+		gl::application_base * window_win32::application() {
+			return _application;
 		}
 
 		expected < std::unique_ptr < window_win32 > > window_win32::create(

@@ -14,7 +14,7 @@ namespace proto {
 
 		virtual ~application_base() = default;
 
-		virtual dispatcher_base & dispatcher() = 0;
+		virtual dispatcher_base * dispatcher() = 0;
 		virtual std::atomic < bool > const & is_running() const = 0;
 
 		virtual expected < void > run() = 0;
@@ -34,7 +34,7 @@ namespace proto {
 		application();
 		virtual ~application();
 
-		dispatcher_base & dispatcher() override;
+		dispatcher_base * dispatcher() override;
 		std::atomic < bool > const & is_running() const override;
 
 		expected < void > run() override;
@@ -49,21 +49,46 @@ namespace proto {
 
 	namespace details {
 
-		using application_update_callback_t = std::function < void(application_base &) >;
+		template < class _application_t >
+		using application_update_callback_t = std::function < void(_application_t &) >;
 
-		class callback_application : public application {
+		template < class _application_t >
+		class callback_application : public _application_t {
 		public:
-			callback_application(application_update_callback_t && callback);
+
+			using callback_type = application_update_callback_t < _application_t >;
+
+			inline callback_application(callback_type callback)
+				: _callback(std::move(callback)) {}
+
 		protected:
-			void update() override;
+
+			void update() override {
+				if (_callback)
+					_callback(*this);
+			}
+
 		private:
-			application_update_callback_t _callback;
+			callback_type _callback;
 		};
 
 	}
 
-	inline expected < void > run_application(details::application_update_callback_t && update_callback) {
-		details::callback_application app(std::move(update_callback));
+	template < class _application_t = proto::application >
+	inline expected < void > run_application(
+		typename details::callback_application < _application_t >::callback_type && update_callback
+	) {
+		static_assert (
+			std::is_base_of<application_base, _application_t>::value, 
+			"run_application type must be derived from application_base"
+		);
+
+		details::callback_application < _application_t > app(
+			std::forward < typename details::callback_application < _application_t >::callback_type > (
+				update_callback
+			)
+		);
+
 		return app.run();
 	}
 
